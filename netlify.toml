@@ -1,8 +1,9 @@
 [build]
   functions = "netlify/functions"
-  publish = "."
+  publish   = "."
 
-[[headers]]
-  for = "/.netlify/functions/*"
-  [headers.values]
-    Access-Control-Allow-Origin = "*"
+[functions]
+  node_bundler = "esbuild"
+
+[build.environment]
+  NODE_VERSION = "18"

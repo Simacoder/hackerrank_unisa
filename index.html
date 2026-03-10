@@ -1138,10 +1138,9 @@
   });
 
   /* ══════════════════════════════════════════════════════
-     LEADERBOARD — JSONP direct to Google Apps Script
-     No proxy needed. Apps Script supports ?callback= natively.
+     LEADERBOARD — Google Apps Script via JSONP
   ══════════════════════════════════════════════════════ */
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbz9fdQ-0wNd56Jd2YkFXso2CMAcF-7LavDoMxWuvvie-4E9l7iAPmAVMs-jlh_mxDWR/exec';
+  const GAS = 'https://script.google.com/macros/s/AKfycbz9fdQ-0wNd56Jd2YkFXso2CMAcF-7LavDoMxWuvvie-4E9l7iAPmAVMs-jlh_mxDWR/exec';
 
   function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
@@ -1172,49 +1171,33 @@
     count.textContent = sorted.length + ' participant' + (sorted.length !== 1 ? 's' : '');
   }
 
-  /* ── Leaderboard loading/error state ── */
   function lbState(msg, isError){
     document.getElementById('lb-body').innerHTML =
       `<tr><td colspan="5" class="lb-empty" style="color:${isError?'#ff8080':'var(--muted)'}">${msg}</td></tr>`;
   }
 
-  /* ── JSONP helper ── */
-  function jsonp(url, timeout){
-    timeout = timeout || 8000;
+  /* ── JSONP: injects <script> tag, Apps Script wraps response in callback() ── */
+  function jsonp(url){
     return new Promise(function(resolve, reject){
-      var cbName = '_gasCallback_' + Date.now() + '_' + Math.floor(Math.random()*10000);
-      var timer  = setTimeout(function(){
-        delete window[cbName];
-        if(tag.parentNode) tag.parentNode.removeChild(tag);
-        reject(new Error('timeout'));
-      }, timeout);
-      window[cbName] = function(data){
-        clearTimeout(timer);
-        delete window[cbName];
-        if(tag.parentNode) tag.parentNode.removeChild(tag);
-        resolve(data);
+      var id    = '_cb' + Date.now() + Math.floor(Math.random()*9999);
+      var timer = setTimeout(function(){
+        cleanup(); reject(new Error('timeout'));
+      }, 10000);
+      function cleanup(){
+        delete window[id];
+        var el = document.getElementById(id);
+        if(el) el.parentNode.removeChild(el);
+      }
+      window[id] = function(data){
+        clearTimeout(timer); cleanup(); resolve(data);
       };
-      var tag = document.createElement('script');
-      tag.src = url + (url.indexOf('?')>=0?'&':'?') + 'callback=' + cbName + '&t=' + Date.now();
-      tag.onerror = function(){
-        clearTimeout(timer);
-        delete window[cbName];
-        reject(new Error('script load failed'));
-      };
-      document.head.appendChild(tag);
+      var sep = url.indexOf('?') >= 0 ? '&' : '?';
+      var s   = document.createElement('script');
+      s.id    = id;
+      s.src   = url + sep + 'callback=' + id + '&_=' + Date.now();
+      s.onerror = function(){ clearTimeout(timer); cleanup(); reject(new Error('Apps Script unreachable — check deployment settings')); };
+      document.head.appendChild(s);
     });
-  }
-
-  /* ── Fetch leaderboard via JSONP ── */
-  async function fetchLeaderboard(){
-    lbState('// loading...', false);
-    try {
-      const data = await jsonp(GAS_URL);
-      if(data && data.success) renderLeaderboard(data.participants);
-      else lbState('// error: ' + (data && data.error || 'unknown'), true);
-    } catch(err) {
-      lbState('// could not load leaderboard — ' + err.message, true);
-    }
   }
 
   /* ── Feedback helper ── */
@@ -1223,7 +1206,19 @@
     fb.style.display = 'block';
     fb.className     = cls;
     fb.textContent   = msg;
-    setTimeout(() => { fb.style.display = 'none'; }, 6000);
+    setTimeout(()=>{ fb.style.display='none'; }, 7000);
+  }
+
+  /* ── Fetch leaderboard ── */
+  async function fetchLeaderboard(){
+    lbState('// loading...', false);
+    try {
+      const data = await jsonp(GAS);
+      if(data && data.success) renderLeaderboard(data.participants);
+      else lbState('// error: ' + (data && data.error || 'unknown response'), true);
+    } catch(err){
+      lbState('// ' + err.message, true);
+    }
   }
 
   /* ── Submit solution ── */
@@ -1244,45 +1239,41 @@
     btn.textContent = '⏳ Submitting...';
 
     try {
-      /* JSONP only supports GET — encode payload as query params */
       const params = new URLSearchParams({
         action       : 'submit',
         studentNum   : student,
         name         : name,
-        challengeIdx : chSel.selectedIndex - 1,
-        pts          : pts,
+        challengeIdx : String(chSel.selectedIndex - 1),
+        pts          : String(pts),
         link         : link,
         round        : '1'
       });
-      const data = await jsonp(GAS_URL + '?' + params.toString());
+      const data = await jsonp(GAS + '?' + params.toString());
 
       if(data && data.success){
         renderLeaderboard(data.participants);
-        showFb(`✓ +${pts} pts submitted! Leaderboard updated.`, 'fb-ok');
+        showFb('✓ +' + pts + ' pts submitted! Leaderboard updated.', 'fb-ok');
+        document.getElementById('sub-name').value    = '';
+        document.getElementById('sub-student').value = '';
+        chSel.selectedIndex = 0;
+        document.getElementById('sub-link').value    = '';
+        document.getElementById('sub-time').value    = '';
+        document.getElementById('sub-notes').value   = '';
+        document.getElementById('score-preview-val').textContent = '0 pts';
       } else if(data && data.error === 'duplicate'){
         showFb('ℹ Already submitted this challenge — each one counts once.', 'fb-err');
       } else {
-        showFb('✗ Submission error: ' + (data && data.error || 'unknown'), 'fb-err');
+        showFb('✗ ' + (data && data.error || 'Unknown error'), 'fb-err');
       }
-
-      // Reset form
-      document.getElementById('sub-name').value    = '';
-      document.getElementById('sub-student').value = '';
-      chSel.selectedIndex = 0;
-      document.getElementById('sub-link').value    = '';
-      document.getElementById('sub-time').value    = '';
-      document.getElementById('sub-notes').value   = '';
-      document.getElementById('score-preview-val').textContent = '0 pts';
-
     } catch(err){
-      showFb('✗ Could not reach server: ' + err.message, 'fb-err');
+      showFb('✗ ' + err.message, 'fb-err');
     } finally {
       btn.disabled    = false;
       btn.textContent = '↗ Submit Solution';
     }
   }
 
-  /* ── Init ── */
+    /* ── Init ── */
   fetchLeaderboard();
   setInterval(fetchLeaderboard, 60000);
 </script>

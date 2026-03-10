@@ -744,7 +744,7 @@
         </div>
         <div class="announce-date-item">
           <span class="announce-date-label">Notify Me</span>
-          <span class="announce-date-val"><a href="mailto:hackerrankunisa@gmail.com" style="color:var(--green);text-decoration:none;">Email us →</a></span>
+          <span class="announce-date-val"><a href="/cdn-cgi/l/email-protection#b9d1d8dad2dccbcbd8d7d2ccd7d0cad8f9ded4d8d0d597dad6d4" style="color:var(--green);text-decoration:none;">Email us →</a></span>
         </div>
       </div>
     </div>
@@ -1062,14 +1062,14 @@
   <p class="join-sub">Join the HackerRank Campus Crew — sharpen your skills, compete fortnightly, climb the leaderboard, and watch yourself grow. It's free.</p>
   <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1;">
     <a href="https://www.hackerrank.com" target="_blank" class="btn-primary">↗ Visit HackerRank</a>
-    <a href="mailto:hackerrankunisa@gmail.com" class="btn-secondary">✉ Contact the Club</a>
+    <a href="/cdn-cgi/l/email-protection#c1a9a0a2aaa4b3b3a0afaab4afa8b2a081a6aca0a8adefa2aeac" class="btn-secondary">✉ Contact the Club</a>
   </div>
   <div style="display:flex;justify-content:center;margin-top:36px;">
-    <a href="mailto:hackerrankunisa@gmail.com" class="email-reach">
+    <a href="/cdn-cgi/l/email-protection#f79f96949c92858596999c82999e8496b7909a969e9bd994989a" class="email-reach">
       <div class="email-reach-icon">✉</div>
       <div class="email-reach-info">
         <div class="email-reach-label">Reach out to us</div>
-        <div class="email-reach-addr">hackerrankunisa@gmail.com</div>
+        <div class="email-reach-addr"><span class="__cf_email__" data-cfemail="167e77757d73646477787d63787f657756717b777f7a3875797b">[email&#160;protected]</span></div>
       </div>
     </a>
   </div>
@@ -1098,7 +1098,7 @@
   <div class="footer-right">University of South Africa · Campus Crew</div>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   /* ── Custom cursor ── */
   const cursor = document.getElementById('cursor');
   const ring   = document.getElementById('cursorRing');
@@ -1138,10 +1138,10 @@
   });
 
   /* ══════════════════════════════════════════════════════
-     LEADERBOARD — proxied via Netlify function
-     (avoids CORS: browser → netlify/functions/leaderboard → Google Apps Script)
+     LEADERBOARD — JSONP direct to Google Apps Script
+     No proxy needed. Apps Script supports ?callback= natively.
   ══════════════════════════════════════════════════════ */
-  const LEADERBOARD_API = '/.netlify/functions/leaderboard';
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbz9fdQ-0wNd56Jd2YkFXso2CMAcF-7LavDoMxWuvvie-4E9l7iAPmAVMs-jlh_mxDWR/exec';
 
   function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
@@ -1178,14 +1178,40 @@
       `<tr><td colspan="5" class="lb-empty" style="color:${isError?'#ff8080':'var(--muted)'}">${msg}</td></tr>`;
   }
 
-  /* ── Fetch leaderboard via Netlify proxy ── */
+  /* ── JSONP helper ── */
+  function jsonp(url, timeout){
+    timeout = timeout || 8000;
+    return new Promise(function(resolve, reject){
+      var cbName = '_gasCallback_' + Date.now() + '_' + Math.floor(Math.random()*10000);
+      var timer  = setTimeout(function(){
+        delete window[cbName];
+        if(tag.parentNode) tag.parentNode.removeChild(tag);
+        reject(new Error('timeout'));
+      }, timeout);
+      window[cbName] = function(data){
+        clearTimeout(timer);
+        delete window[cbName];
+        if(tag.parentNode) tag.parentNode.removeChild(tag);
+        resolve(data);
+      };
+      var tag = document.createElement('script');
+      tag.src = url + (url.indexOf('?')>=0?'&':'?') + 'callback=' + cbName + '&t=' + Date.now();
+      tag.onerror = function(){
+        clearTimeout(timer);
+        delete window[cbName];
+        reject(new Error('script load failed'));
+      };
+      document.head.appendChild(tag);
+    });
+  }
+
+  /* ── Fetch leaderboard via JSONP ── */
   async function fetchLeaderboard(){
     lbState('// loading...', false);
     try {
-      const res  = await fetch(LEADERBOARD_API + '?t=' + Date.now());
-      const data = await res.json();
+      const data = await jsonp(GAS_URL);
       if(data && data.success) renderLeaderboard(data.participants);
-      else lbState('// error loading leaderboard', true);
+      else lbState('// error: ' + (data && data.error || 'unknown'), true);
     } catch(err) {
       lbState('// could not load leaderboard — ' + err.message, true);
     }
@@ -1218,21 +1244,17 @@
     btn.textContent = '⏳ Submitting...';
 
     try {
-      const payload = {
+      /* JSONP only supports GET — encode payload as query params */
+      const params = new URLSearchParams({
+        action       : 'submit',
         studentNum   : student,
         name         : name,
         challengeIdx : chSel.selectedIndex - 1,
         pts          : pts,
         link         : link,
         round        : '1'
-      };
-
-      const res  = await fetch(LEADERBOARD_API, {
-        method  : 'POST',
-        headers : { 'Content-Type': 'text/plain' },
-        body    : JSON.stringify(payload)
       });
-      const data = await res.json();
+      const data = await jsonp(GAS_URL + '?' + params.toString());
 
       if(data && data.success){
         renderLeaderboard(data.participants);

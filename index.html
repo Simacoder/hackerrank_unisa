@@ -866,7 +866,7 @@
         <div class="session-desc">Our very first session. Introduction to HackerRank, how to set up your profile, join the club contest, and tackle your first challenge live.</div>
         <div class="session-footer">
           <span class="session-views">👁 142 views</span>
-          <a href="https://www.youtube.com/watch?v=wko-8FJSh0g&t=32s" target="_blank" class="session-watch-btn">
+          <a href="https://www.youtube.com/watch?v=wko-8FJSh0g&t=34s" target="_blank" class="session-watch-btn">
             <svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg>
             Watch Now
           </a>
@@ -901,21 +901,7 @@
       </div>
     </div>
 
-    <div class="session-card">
-      <div class="session-thumb">
-        <div class="session-thumb-bg">
-          <span class="session-thumb-icon">🏆</span>
-        </div>
-        <div class="session-type-tag">CHALLENGE</div>
-        <div class="session-duration">2:04:11</div>
-        <div class="session-thumb-overlay">
-          <div class="play-btn">
-            <svg viewBox="0 0 20 20"><polygon points="5,3 19,10 5,17"/></svg>
-          </div>
-        </div>
-      </div>
-     
-
+    
   <!-- YouTube Channel CTA -->
   <div class="sessions-yt-cta reveal">
     <div class="yt-cta-left">
@@ -1043,13 +1029,13 @@
   });
 
   /* ══════════════════════════════════════════════════════
-     LEADERBOARD — Google Apps Script via JSONP
+     LEADERBOARD — via Netlify proxy function
+     browser → /.netlify/functions/leaderboard → Apps Script
   ══════════════════════════════════════════════════════ */
-  const GAS = 'https://script.google.com/macros/s/AKfycbz9fdQ-0wNd56Jd2YkFXso2CMAcF-7LavDoMxWuvvie-4E9l7iAPmAVMs-jlh_mxDWR/exec';
+  const API = '/.netlify/functions/leaderboard';
 
   function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  /* ── Render leaderboard table ── */
   function renderLeaderboard(participants){
     const body  = document.getElementById('lb-body');
     const count = document.getElementById('lb-count');
@@ -1081,31 +1067,18 @@
       `<tr><td colspan="5" class="lb-empty" style="color:${isError?'#ff8080':'var(--muted)'}">${msg}</td></tr>`;
   }
 
-  /* ── JSONP: injects <script> tag, Apps Script wraps response in callback() ── */
-  function jsonp(url){
-    return new Promise(function(resolve, reject){
-      var id    = '_cb' + Date.now() + Math.floor(Math.random()*9999);
-      var timer = setTimeout(function(){
-        cleanup(); reject(new Error('timeout'));
-      }, 10000);
-      function cleanup(){
-        delete window[id];
-        var el = document.getElementById(id);
-        if(el) el.parentNode.removeChild(el);
-      }
-      window[id] = function(data){
-        clearTimeout(timer); cleanup(); resolve(data);
-      };
-      var sep = url.indexOf('?') >= 0 ? '&' : '?';
-      var s   = document.createElement('script');
-      s.id    = id;
-      s.src   = url + sep + 'callback=' + id + '&_=' + Date.now();
-      s.onerror = function(){ clearTimeout(timer); cleanup(); reject(new Error('Apps Script unreachable — check deployment settings')); };
-      document.head.appendChild(s);
-    });
+  async function fetchLeaderboard(){
+    lbState('// loading...', false);
+    try {
+      const res  = await fetch(API + '?t=' + Date.now());
+      const data = await res.json();
+      if(data && data.success) renderLeaderboard(data.participants);
+      else lbState('// error: ' + (data && data.error || 'unknown'), true);
+    } catch(err) {
+      lbState('// could not load leaderboard — ' + err.message, true);
+    }
   }
 
-  /* ── Feedback helper ── */
   function showFb(msg, cls){
     const fb = document.getElementById('sub-feedback');
     fb.style.display = 'block';
@@ -1114,19 +1087,6 @@
     setTimeout(()=>{ fb.style.display='none'; }, 7000);
   }
 
-  /* ── Fetch leaderboard ── */
-  async function fetchLeaderboard(){
-    lbState('// loading...', false);
-    try {
-      const data = await jsonp(GAS);
-      if(data && data.success) renderLeaderboard(data.participants);
-      else lbState('// error: ' + (data && data.error || 'unknown response'), true);
-    } catch(err){
-      lbState('// ' + err.message, true);
-    }
-  }
-
-  /* ── Submit solution ── */
   async function submitSolution(){
     const name    = document.getElementById('sub-name').value.trim();
     const student = document.getElementById('sub-student').value.trim();
@@ -1135,25 +1095,29 @@
     const link    = document.getElementById('sub-link').value.trim();
     const btn     = document.querySelector('.sub-btn');
 
-    if(!name)                          { showFb('✗ Please enter your name.','fb-err'); return; }
-    if(!student)                       { showFb('✗ Please enter your student number.','fb-err'); return; }
-    if(!pts)                           { showFb('✗ Please select a challenge.','fb-err'); return; }
-    if(!link||!link.startsWith('http')){ showFb('✗ Please paste a valid HackerRank solution URL.','fb-err'); return; }
+    if(!name)                           { showFb('✗ Please enter your name.','fb-err'); return; }
+    if(!student)                        { showFb('✗ Please enter your student number.','fb-err'); return; }
+    if(!pts)                            { showFb('✗ Please select a challenge.','fb-err'); return; }
+    if(!link||!link.startsWith('http')) { showFb('✗ Please paste a valid HackerRank solution URL.','fb-err'); return; }
 
     btn.disabled    = true;
     btn.textContent = '⏳ Submitting...';
 
     try {
-      const params = new URLSearchParams({
-        action       : 'submit',
+      const payload = {
         studentNum   : student,
         name         : name,
-        challengeIdx : String(chSel.selectedIndex - 1),
-        pts          : String(pts),
+        challengeIdx : chSel.selectedIndex - 1,
+        pts          : pts,
         link         : link,
         round        : '1'
+      };
+      const res  = await fetch(API, {
+        method  : 'POST',
+        headers : { 'Content-Type': 'text/plain' },
+        body    : JSON.stringify(payload)
       });
-      const data = await jsonp(GAS + '?' + params.toString());
+      const data = await res.json();
 
       if(data && data.success){
         renderLeaderboard(data.participants);
@@ -1171,14 +1135,14 @@
         showFb('✗ ' + (data && data.error || 'Unknown error'), 'fb-err');
       }
     } catch(err){
-      showFb('✗ ' + err.message, 'fb-err');
+      showFb('✗ Could not reach server: ' + err.message, 'fb-err');
     } finally {
       btn.disabled    = false;
       btn.textContent = '↗ Submit Solution';
     }
   }
 
-    /* ── Init ── */
+  /* ── Init ── */
   fetchLeaderboard();
   setInterval(fetchLeaderboard, 60000);
 </script>

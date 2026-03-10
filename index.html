@@ -1101,7 +1101,7 @@
 <script>
   /* ── Custom cursor ── */
   const cursor = document.getElementById('cursor');
-  const ring = document.getElementById('cursorRing');
+  const ring   = document.getElementById('cursorRing');
   let mx=0,my=0,rx=0,ry=0;
   document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx-6+'px';cursor.style.top=my-6+'px';});
   function animRing(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.left=rx-18+'px';ring.style.top=ry-18+'px';requestAnimationFrame(animRing);}
@@ -1116,11 +1116,10 @@
     entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
   },{threshold:0.08}).observe(el));
 
-  /* ── Countdown timer to 11 March 2026 23:59 SAST ── */
+  /* ── Countdown to 11 March 2026 23:59 SAST ── */
   function updateCountdown(){
     const deadline = new Date('2026-03-11T23:59:00+02:00');
-    const now = new Date();
-    let diff = Math.max(0, deadline - now);
+    const diff = Math.max(0, deadline - new Date());
     const d = Math.floor(diff/86400000);
     const h = Math.floor((diff%86400000)/3600000);
     const m = Math.floor((diff%3600000)/60000);
@@ -1139,14 +1138,14 @@
   });
 
   /* ══════════════════════════════════════════════════════
-     GOOGLE SHEETS LEADERBOARD
-     Paste your deployed Apps Script URL below after setup
+     LEADERBOARD — proxied via Netlify function
+     (avoids CORS: browser → netlify/functions/leaderboard → Google Apps Script)
   ══════════════════════════════════════════════════════ */
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz9fdQ-0wNd56Jd2YkFXso2CMAcF-7LavDoMxWuvvie-4E9l7iAPmAVMs-jlh_mxDWR/exec';
+  const LEADERBOARD_API = '/.netlify/functions/leaderboard';
 
-  function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  /* ── Render leaderboard from data array ── */
+  /* ── Render leaderboard table ── */
   function renderLeaderboard(participants){
     const body  = document.getElementById('lb-body');
     const count = document.getElementById('lb-count');
@@ -1155,13 +1154,13 @@
       count.textContent = '0 participants';
       return;
     }
-    const sorted = [...participants].sort((a,b) => b.score - a.score || a.name.localeCompare(b.name));
+    const sorted   = [...participants].sort((a,b) => b.score - a.score || a.name.localeCompare(b.name));
     const maxScore = Math.max(...sorted.map(p=>p.score), 1);
     body.innerHTML = sorted.map((p,i) => {
-      const rank = i+1;
+      const rank      = i + 1;
       const rankClass = rank===1?'rank-1':rank===2?'rank-2':rank===3?'rank-3':'rank-other';
-      const medal = rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'';
-      const barW = Math.round((p.score/maxScore)*60);
+      const medal     = rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'';
+      const barW      = Math.round((p.score / maxScore) * 60);
       return `<tr>
         <td class="lb-rank ${rankClass}">${String(rank).padStart(2,'0')}</td>
         <td class="lb-name">${escHtml(p.name)}</td>
@@ -1170,53 +1169,38 @@
         <td class="lb-badge-cell"><span class="lb-medal">${medal}</span></td>
       </tr>`;
     }).join('');
-    count.textContent = sorted.length + ' participant' + (sorted.length!==1?'s':'');
+    count.textContent = sorted.length + ' participant' + (sorted.length !== 1 ? 's' : '');
   }
 
-  /* ── Show leaderboard loading/error state ── */
+  /* ── Leaderboard loading/error state ── */
   function lbState(msg, isError){
-    const body = document.getElementById('lb-body');
-    const color = isError ? '#ff8080' : 'var(--muted)';
-    body.innerHTML = `<tr><td colspan="5" class="lb-empty" style="color:${color}">${msg}</td></tr>`;
+    document.getElementById('lb-body').innerHTML =
+      `<tr><td colspan="5" class="lb-empty" style="color:${isError?'#ff8080':'var(--muted)'}">${msg}</td></tr>`;
   }
 
-  /* ── Fetch leaderboard via JSONP (bypasses CORS on GET) ── */
-  function fetchLeaderboard(){
-    if(!APPS_SCRIPT_URL || !APPS_SCRIPT_URL.includes('script.google.com')){
-      lbState('// connect Google Sheets to enable live leaderboard', false);
-      return;
-    }
-    lbState('// loading leaderboard...', false);
-    const old = document.getElementById('jsonp-lb');
-    if(old) old.remove();
-    const timeout = setTimeout(()=>{
-      lbState('// timeout — check Apps Script URL', false);
-    }, 8000);
-    window._lbCallback = function(data){
-      clearTimeout(timeout);
+  /* ── Fetch leaderboard via Netlify proxy ── */
+  async function fetchLeaderboard(){
+    lbState('// loading...', false);
+    try {
+      const res  = await fetch(LEADERBOARD_API + '?t=' + Date.now());
+      const data = await res.json();
       if(data && data.success) renderLeaderboard(data.participants);
-      else lbState('// error loading leaderboard — try refreshing', true);
-      delete window._lbCallback;
-    };
-    const script = document.createElement('script');
-    script.id  = 'jsonp-lb';
-    script.src = APPS_SCRIPT_URL + '?callback=_lbCallback&t=' + Date.now();
-    script.onerror = ()=>{
-      clearTimeout(timeout);
-      lbState('// could not reach leaderboard — check Apps Script URL', true);
-    };
-    document.head.appendChild(script);
+      else lbState('// error loading leaderboard', true);
+    } catch(err) {
+      lbState('// could not load leaderboard — ' + err.message, true);
+    }
   }
 
+  /* ── Feedback helper ── */
   function showFb(msg, cls){
     const fb = document.getElementById('sub-feedback');
     fb.style.display = 'block';
-    fb.className = cls;
-    fb.textContent = msg;
-    setTimeout(()=>{ fb.style.display='none'; }, 6000);
+    fb.className     = cls;
+    fb.textContent   = msg;
+    setTimeout(() => { fb.style.display = 'none'; }, 6000);
   }
 
-  /* ── Submit solution → POST to Google Sheets ── */
+  /* ── Submit solution ── */
   async function submitSolution(){
     const name    = document.getElementById('sub-name').value.trim();
     const student = document.getElementById('sub-student').value.trim();
@@ -1225,17 +1209,12 @@
     const link    = document.getElementById('sub-link').value.trim();
     const btn     = document.querySelector('.sub-btn');
 
-    if(!name)   { showFb('✗ Please enter your name.','fb-err'); return; }
-    if(!student){ showFb('✗ Please enter your student number.','fb-err'); return; }
-    if(!pts)    { showFb('✗ Please select a challenge.','fb-err'); return; }
-    if(!link || !link.startsWith('http')){ showFb('✗ Please paste a valid HackerRank solution URL.','fb-err'); return; }
+    if(!name)                          { showFb('✗ Please enter your name.','fb-err'); return; }
+    if(!student)                       { showFb('✗ Please enter your student number.','fb-err'); return; }
+    if(!pts)                           { showFb('✗ Please select a challenge.','fb-err'); return; }
+    if(!link||!link.startsWith('http')){ showFb('✗ Please paste a valid HackerRank solution URL.','fb-err'); return; }
 
-    if(!APPS_SCRIPT_URL || !APPS_SCRIPT_URL.includes('script.google.com')){
-      showFb('⚠ Leaderboard not connected yet. Contact the exco.','fb-err'); return;
-    }
-
-    // Lock button during submit
-    btn.disabled = true;
+    btn.disabled    = true;
     btn.textContent = '⏳ Submitting...';
 
     try {
@@ -1248,20 +1227,23 @@
         round        : '1'
       };
 
-      // Apps Script requires no-cors for POST from browser
-      // We use a form-encoded POST via a hidden iframe trick for reliable delivery
-      await fetch(APPS_SCRIPT_URL, {
+      const res  = await fetch(LEADERBOARD_API, {
         method  : 'POST',
-        mode    : 'no-cors',
         headers : { 'Content-Type': 'text/plain' },
         body    : JSON.stringify(payload)
       });
+      const data = await res.json();
 
-      // POST with no-cors returns opaque response — we assume success
-      // then re-fetch leaderboard via JSONP to confirm
-      showFb(`✓ Submitted! Refreshing leaderboard...`, 'fb-ok');
+      if(data && data.success){
+        renderLeaderboard(data.participants);
+        showFb(`✓ +${pts} pts submitted! Leaderboard updated.`, 'fb-ok');
+      } else if(data && data.error === 'duplicate'){
+        showFb('ℹ Already submitted this challenge — each one counts once.', 'fb-err');
+      } else {
+        showFb('✗ Submission error: ' + (data && data.error || 'unknown'), 'fb-err');
+      }
 
-      // Reset form immediately
+      // Reset form
       document.getElementById('sub-name').value    = '';
       document.getElementById('sub-student').value = '';
       chSel.selectedIndex = 0;
@@ -1270,22 +1252,15 @@
       document.getElementById('sub-notes').value   = '';
       document.getElementById('score-preview-val').textContent = '0 pts';
 
-      // Wait 2s for Sheet to update, then reload leaderboard
-      setTimeout(()=>{
-        fetchLeaderboard();
-        showFb(`✓ +${pts} pts submitted! Check the leaderboard.`, 'fb-ok');
-      }, 2000);
-
     } catch(err){
-      showFb('✗ Could not reach server. Check your connection and try again.','fb-err');
+      showFb('✗ Could not reach server: ' + err.message, 'fb-err');
     } finally {
-      btn.disabled = false;
+      btn.disabled    = false;
       btn.textContent = '↗ Submit Solution';
     }
-
   }
 
-  /* ── Init: load leaderboard on page load, refresh every 60s ── */
+  /* ── Init ── */
   fetchLeaderboard();
   setInterval(fetchLeaderboard, 60000);
 </script>

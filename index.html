@@ -744,7 +744,7 @@
         </div>
         <div class="announce-date-item">
           <span class="announce-date-label">Notify Me</span>
-          <span class="announce-date-val"><a href="/cdn-cgi/l/email-protection#87efe6e4ece2f5f5e6e9ecf2e9eef4e6c7e0eae6eeeba9e4e8ea" style="color:var(--green);text-decoration:none;">Email us →</a></span>
+          <span class="announce-date-val"><a href="mailto:hackerrankunisa@gmail.com" style="color:var(--green);text-decoration:none;">Email us →</a></span>
         </div>
       </div>
     </div>
@@ -1062,14 +1062,14 @@
   <p class="join-sub">Join the HackerRank Campus Crew — sharpen your skills, compete fortnightly, climb the leaderboard, and watch yourself grow. It's free.</p>
   <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1;">
     <a href="https://www.hackerrank.com" target="_blank" class="btn-primary">↗ Visit HackerRank</a>
-    <a href="/cdn-cgi/l/email-protection#c5ada4a6aea0b7b7a4abaeb0abacb6a485a2a8a4aca9eba6aaa8" class="btn-secondary">✉ Contact the Club</a>
+    <a href="mailto:hackerrankunisa@gmail.com" class="btn-secondary">✉ Contact the Club</a>
   </div>
   <div style="display:flex;justify-content:center;margin-top:36px;">
-    <a href="/cdn-cgi/l/email-protection#acc4cdcfc7c9dedecdc2c7d9c2c5dfcdeccbc1cdc5c082cfc3c1" class="email-reach">
+    <a href="mailto:hackerrankunisa@gmail.com" class="email-reach">
       <div class="email-reach-icon">✉</div>
       <div class="email-reach-info">
         <div class="email-reach-label">Reach out to us</div>
-        <div class="email-reach-addr"><span class="__cf_email__" data-cfemail="c1a9a0a2aaa4b3b3a0afaab4afa8b2a081a6aca0a8adefa2aeac">[email&#160;protected]</span></div>
+        <div class="email-reach-addr">hackerrankunisa@gmail.com</div>
       </div>
     </a>
   </div>
@@ -1098,7 +1098,7 @@
   <div class="footer-right">University of South Africa · Campus Crew</div>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
   /* ── Custom cursor ── */
   const cursor = document.getElementById('cursor');
   const ring = document.getElementById('cursorRing');
@@ -1142,7 +1142,7 @@
      GOOGLE SHEETS LEADERBOARD
      Paste your deployed Apps Script URL below after setup
   ══════════════════════════════════════════════════════ */
-  const APPS_SCRIPT_URL = 'PASTE_YOUR_DEPLOYED_APPS_SCRIPT_URL_HERE';
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz9fdQ-0wNd56Jd2YkFXso2CMAcF-7LavDoMxWuvvie-4E9l7iAPmAVMs-jlh_mxDWR/exec';
 
   function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
@@ -1182,7 +1182,7 @@
 
   /* ── Fetch leaderboard via JSONP (bypasses CORS on GET) ── */
   function fetchLeaderboard(){
-    if(APPS_SCRIPT_URL === 'PASTE_YOUR_DEPLOYED_APPS_SCRIPT_URL_HERE'){
+    if(!APPS_SCRIPT_URL || !APPS_SCRIPT_URL.includes('script.google.com')){
       lbState('// connect Google Sheets to enable live leaderboard', false);
       return;
     }
@@ -1230,7 +1230,7 @@
     if(!pts)    { showFb('✗ Please select a challenge.','fb-err'); return; }
     if(!link || !link.startsWith('http')){ showFb('✗ Please paste a valid HackerRank solution URL.','fb-err'); return; }
 
-    if(APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbz9fdQ-0wNd56Jd2YkFXso2CMAcF-7LavDoMxWuvvie-4E9l7iAPmAVMs-jlh_mxDWR/exec'){
+    if(!APPS_SCRIPT_URL || !APPS_SCRIPT_URL.includes('script.google.com')){
       showFb('⚠ Leaderboard not connected yet. Contact the exco.','fb-err'); return;
     }
 
@@ -1284,11 +1284,6 @@
     }
 
   }
-
-  /* ── Score preview ── */
-  document.getElementById('sub-challenge').addEventListener('change', function(){
-    document.getElementById('score-preview-val').textContent = this.value ? this.value + ' pts' : '0 pts';
-  });
 
   /* ── Init: load leaderboard on page load, refresh every 60s ── */
   fetchLeaderboard();

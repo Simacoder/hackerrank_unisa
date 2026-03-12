@@ -3,467 +3,219 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HackerRank Campus Crew – UNISA</title>
+<title>HackerRank Campus Crew &ndash; UNISA</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --green: #00ea64;
-    --dark: #0a0f0a;
-    --darker: #060a06;
-    --card: #111711;
-    --border: #1e2e1e;
-    --muted: #4a6a4a;
-    --text: #d4e8d4;
-    --white: #f0f7f0;
-    --gold: #f5c518;
-    --silver: #a8b8a8;
-    --bronze: #cd7f32;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body { background: var(--darker); color: var(--text); font-family: 'Syne', sans-serif; overflow-x: hidden; cursor: none; }
-
-  .cursor { position: fixed; width: 12px; height: 12px; background: var(--green); border-radius: 50%; pointer-events: none; z-index: 9999; transition: transform 0.1s ease; mix-blend-mode: screen; }
-  .cursor-ring { position: fixed; width: 36px; height: 36px; border: 1px solid var(--green); border-radius: 50%; pointer-events: none; z-index: 9998; transition: all 0.15s ease; opacity: 0.5; }
-
-  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 1000; opacity: 0.4; }
-
-  /* NAV */
-  nav { position: fixed; top: 0; width: 100%; z-index: 500; display: flex; justify-content: space-between; align-items: center; padding: 14px 48px; background: rgba(6,10,6,0.92); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
-  .nav-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-  .logo-svg { width: 34px; height: 34px; flex-shrink: 0; }
-  .nav-text { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--green); letter-spacing: 0.06em; }
-  .nav-text span { color: var(--muted); }
-  .nav-links { display: flex; gap: 28px; list-style: none; }
-  .nav-links a { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); text-decoration: none; letter-spacing: 0.1em; transition: color 0.2s; }
-  .nav-links a:hover { color: var(--green); }
-
-  /* HERO */
-  .hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 48px 80px; position: relative; overflow: hidden; }
-  .hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 60% 50% at 75% 50%, rgba(0,234,100,0.07) 0%, transparent 70%), radial-gradient(ellipse 40% 60% at 20% 80%, rgba(0,234,100,0.03) 0%, transparent 60%); }
-  .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(0,234,100,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,234,100,0.03) 1px, transparent 1px); background-size: 60px 60px; }
-  .hero-content { position: relative; max-width: 580px; }
-  .hero-badge { display: inline-flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--green); border: 1px solid rgba(0,234,100,0.3); padding: 6px 14px; border-radius: 2px; margin-bottom: 40px; letter-spacing: 0.12em; animation: fadeUp 0.6s ease both; }
-  .hero-badge::before { content: ''; width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.8);} }
-  @keyframes fadeUp { from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);} }
-  .hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(52px, 7vw, 90px); font-weight: 800; line-height: 0.95; color: var(--white); letter-spacing: -0.03em; margin-bottom: 32px; animation: fadeUp 0.6s 0.1s ease both; }
-  .hero h1 em { font-style: normal; color: var(--green); display: block; }
-  .hero-desc { font-size: 17px; color: var(--muted); line-height: 1.7; max-width: 500px; margin-bottom: 48px; animation: fadeUp 0.6s 0.2s ease both; }
-  .hero-cta { display: flex; gap: 16px; flex-wrap: wrap; animation: fadeUp 0.6s 0.3s ease both; }
-
-  .btn-primary { display: inline-flex; align-items: center; gap: 10px; padding: 14px 32px; background: var(--green); color: var(--darker); font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-decoration: none; border-radius: 2px; transition: all 0.2s; border: none; cursor: none; }
-  .btn-primary:hover { background: #00ff70; transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,234,100,0.3); }
-  .btn-secondary { display: inline-flex; align-items: center; gap: 10px; padding: 14px 32px; background: transparent; color: var(--green); font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.08em; text-decoration: none; border: 1px solid rgba(0,234,100,0.3); border-radius: 2px; transition: all 0.2s; }
-  .btn-secondary:hover { border-color: var(--green); background: rgba(0,234,100,0.05); }
-
-  .hero-right { position: absolute; right: 48px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 28px; animation: fadeUp 0.9s 0.4s ease both; }
-  .hero-logo-svg { width: 220px; height: 220px; filter: drop-shadow(0 0 50px rgba(0,234,100,0.18)); }
-  .hero-code-box { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 18px 22px; width: 260px; }
-  .code-header { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
-  .dot { width: 10px; height: 10px; border-radius: 50%; }
-  .dot.r{background:#ff5f56;}.dot.y{background:#ffbd2e;}.dot.g{background:#27c93f;}
-  .code-body { font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.8; color: var(--muted); }
-  .code-body .kw{color:#c792ea;}.code-body .fn{color:#82aaff;}.code-body .str{color:var(--green);}.code-body .cm{color:#546e7a;}
-  .typing-cursor { display: inline-block; width: 2px; height: 14px; background: var(--green); animation: blink 1s infinite; vertical-align: middle; }
-  @keyframes blink{50%{opacity:0;}}
-
-  /* SECTIONS */
-  section { padding: 100px 48px; position: relative; }
-  .section-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--green); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
-  .section-label::before { content: ''; width: 24px; height: 1px; background: var(--green); }
-  .section-title { font-size: clamp(36px, 5vw, 56px); font-weight: 800; color: var(--white); letter-spacing: -0.02em; line-height: 1.05; margin-bottom: 16px; }
-  .section-sub { color: var(--muted); font-size: 16px; line-height: 1.7; max-width: 560px; margin-bottom: 64px; }
-
-  /* STATS */
-  .stats { background: var(--card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); }
-  .stat-item { padding: 40px 32px; border-right: 1px solid var(--border); text-align: center; }
-  .stat-item:last-child { border-right: none; }
-  .stat-num { font-family: 'Syne', sans-serif; font-size: 48px; font-weight: 800; color: var(--green); line-height: 1; margin-bottom: 8px; }
-  .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
-
-  /* MISSION */
-  .mission { background: var(--dark); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-  .mission-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2px; background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
-  .mission-card { background: var(--card); padding: 40px 36px; transition: background 0.2s; position: relative; overflow: hidden; }
-  .mission-card::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: var(--green); transition: width 0.3s ease; }
-  .mission-card:hover::after { width: 100%; }
-  .mission-card:hover { background: #131a13; }
-  .mission-icon { font-size: 28px; margin-bottom: 20px; display: block; }
-  .mission-card h3 { font-size: 17px; font-weight: 700; color: var(--white); margin-bottom: 10px; }
-  .mission-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
-
-  /* ═══════════════════════════════════════════════════
-     BI-MONTHLY CHALLENGE SECTION
-  ═══════════════════════════════════════════════════ */
-  #challenges { background: var(--darker); }
-
-  .challenge-banner {
-    background: linear-gradient(135deg, #0a1a0a 0%, #0d1f0d 50%, #091509 100%);
-    border: 1px solid rgba(0,234,100,0.25);
-    border-radius: 8px;
-    padding: 32px 40px;
-    margin-bottom: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-    position: relative;
-    overflow: hidden;
-  }
-  .challenge-banner::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--green), transparent);
-    animation: scanline 3s ease infinite;
-  }
-  @keyframes scanline { 0%,100%{opacity:0.4;}50%{opacity:1;} }
-  .challenge-banner-left h3 { font-size: 22px; font-weight: 800; color: var(--white); margin-bottom: 6px; }
-  .challenge-banner-left p { font-size: 13px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
-  .challenge-countdown { display: flex; gap: 16px; }
-  .countdown-unit { text-align: center; background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 12px 16px; min-width: 60px; }
-  .countdown-num { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--green); line-height: 1; display: block; }
-  .countdown-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 0.15em; margin-top: 4px; display: block; }
-
-  .challenges-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 48px; }
-  .challenge-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 28px;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  .challenge-card:hover { border-color: rgba(0,234,100,0.3); transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.4); }
-  .challenge-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--green); transform:scaleX(0); transition:transform 0.3s; }
-  .challenge-card:hover::before { transform:scaleX(1); }
-  .challenge-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-  .challenge-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.15em; }
-  .difficulty-badge {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.15em;
-    padding: 3px 8px;
-    border-radius: 2px;
-    text-transform: uppercase;
-  }
-  .diff-easy { background: rgba(0,234,100,0.12); color: var(--green); border: 1px solid rgba(0,234,100,0.3); }
-  .diff-medium { background: rgba(245,197,24,0.1); color: var(--gold); border: 1px solid rgba(245,197,24,0.3); }
-  .diff-hard { background: rgba(255,80,80,0.1); color: #ff8080; border: 1px solid rgba(255,80,80,0.3); }
-  .challenge-title { font-size: 16px; font-weight: 700; color: var(--white); line-height: 1.3; }
-  .challenge-desc { font-size: 13px; color: var(--muted); line-height: 1.7; flex: 1; }
-  .challenge-meta { display: flex; gap: 16px; flex-wrap: wrap; }
-  .challenge-meta span { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
-  .challenge-link {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(0,234,100,0.08); border: 1px solid rgba(0,234,100,0.2);
-    color: var(--green); font-family: 'JetBrains Mono', monospace; font-size: 11px;
-    padding: 10px 16px; border-radius: 2px; text-decoration: none;
-    letter-spacing: 0.08em; transition: all 0.2s; align-self: flex-start;
-  }
-  .challenge-link:hover { background: rgba(0,234,100,0.15); border-color: var(--green); }
-  .challenge-link svg { width: 12px; height: 12px; }
-
-  .challenge-announce {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 32px;
-    display: flex;
-    align-items: flex-start;
-    gap: 20px;
-  }
-  .announce-icon { font-size: 32px; flex-shrink: 0; }
-  .announce-body h4 { font-size: 18px; font-weight: 700; color: var(--white); margin-bottom: 8px; }
-  .announce-body p { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 16px; }
-  .announce-dates { display: flex; gap: 24px; flex-wrap: wrap; }
-  .announce-date-item { display: flex; flex-direction: column; gap: 2px; }
-  .announce-date-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; }
-  .announce-date-val { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--green); }
-
-  /* ═══════════════════════════════════════════════════
-     LEADERBOARD + SUBMISSION SECTION
-  ═══════════════════════════════════════════════════ */
-  #leaderboard { background: var(--dark); border-top: 1px solid var(--border); }
-
-  .leaderboard-layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: 32px; align-items: start; }
-
-  /* Submission Form */
-  .submission-panel {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    overflow: hidden;
-  }
-  .submission-header {
-    padding: 20px 28px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: #0d160d;
-  }
-  .submission-header h3 { font-size: 15px; font-weight: 700; color: var(--white); }
-  .submission-header .dot-live { width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; flex-shrink: 0; }
-  .submission-body { padding: 28px; display: flex; flex-direction: column; gap: 18px; }
-
-  .sub-field { display: flex; flex-direction: column; gap: 7px; }
-  .sub-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--green); letter-spacing: 0.18em; }
-  .sub-input, .sub-select, .sub-textarea {
-    background: #0d160d; border: 1px solid var(--border); border-radius: 3px;
-    padding: 12px 14px; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 13px;
-    outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 100%;
-  }
-  .sub-input:focus, .sub-select:focus, .sub-textarea:focus {
-    border-color: rgba(0,234,100,0.4); box-shadow: 0 0 0 3px rgba(0,234,100,0.06);
-  }
-  .sub-input::placeholder, .sub-textarea::placeholder { color: var(--muted); }
-  .sub-select option { background: #0d160d; }
-  .sub-textarea { min-height: 80px; resize: vertical; }
-
-  .score-preview {
-    background: #0d160d; border: 1px solid var(--border); border-radius: 3px;
-    padding: 14px; display: flex; justify-content: space-between; align-items: center;
-  }
-  .score-preview-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
-  .score-preview-val { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; color: var(--green); }
-
-  .sub-btn {
-    padding: 14px; background: var(--green); color: var(--darker);
-    font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700;
-    letter-spacing: 0.1em; border: none; border-radius: 2px; cursor: none;
-    transition: all 0.2s; width: 100%;
-  }
-  .sub-btn:hover { background: #00ff70; box-shadow: 0 8px 30px rgba(0,234,100,0.3); }
-  #sub-feedback {
-    padding: 12px 14px; border-radius: 3px; font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; text-align: center; display: none;
-  }
-  .fb-ok { background: rgba(0,234,100,0.08); border: 1px solid rgba(0,234,100,0.3); color: var(--green); }
-  .fb-err { background: rgba(255,80,80,0.08); border: 1px solid rgba(255,80,80,0.3); color: #ff8080; }
-
-  /* Leaderboard Table */
-  .leaderboard-panel {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    overflow: hidden;
-  }
-  .lb-header {
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--border);
-    background: #0d160d;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .lb-header h3 { font-size: 15px; font-weight: 700; color: var(--white); }
-  .lb-round-badge {
-    font-family: 'JetBrains Mono', monospace; font-size: 10px;
-    color: var(--green); border: 1px solid rgba(0,234,100,0.3);
-    padding: 3px 10px; border-radius: 2px; letter-spacing: 0.1em;
-  }
-  .lb-table { width: 100%; border-collapse: collapse; }
-  .lb-table th {
-    font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted);
-    letter-spacing: 0.18em; text-transform: uppercase; text-align: left;
-    padding: 12px 20px; border-bottom: 1px solid var(--border); background: #0a140a;
-  }
-  .lb-table td {
-    padding: 14px 20px; border-bottom: 1px solid rgba(30,46,30,0.5);
-    font-size: 13px; color: var(--text);
-  }
-  .lb-table tr:last-child td { border-bottom: none; }
-  .lb-table tbody tr { transition: background 0.15s; }
-  .lb-table tbody tr:hover { background: rgba(0,234,100,0.03); }
-  .lb-rank { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; }
-  .rank-1 { color: var(--gold); }
-  .rank-2 { color: var(--silver); }
-  .rank-3 { color: var(--bronze); }
-  .rank-other { color: var(--muted); }
-  .lb-name { font-weight: 700; color: var(--white); }
-  .lb-score { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--green); font-weight: 700; }
-  .lb-badge-cell { text-align: right; }
-  .lb-medal { font-size: 16px; }
-  .lb-bar-wrap { width: 60px; background: var(--border); border-radius: 2px; height: 4px; display: inline-block; vertical-align: middle; margin-left: 8px; }
-  .lb-bar { height: 4px; background: var(--green); border-radius: 2px; transition: width 0.6s ease; }
-  .lb-empty { padding: 32px 20px; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
-
-  /* ═══════════════════════════════════════════════════
-     PREVIOUS SESSIONS / YOUTUBE
-  ═══════════════════════════════════════════════════ */
-  #sessions { background: var(--darker); border-top: 1px solid var(--border); }
-
-  .sessions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
-  .session-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    position: relative;
-  }
-  .session-card:hover { border-color: rgba(0,234,100,0.3); transform: translateY(-3px); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-  .session-thumb {
-    position: relative;
-    aspect-ratio: 16/9;
-    background: #0a120a;
-    overflow: hidden;
-    cursor: none;
-  }
-  .session-thumb-bg {
-    width: 100%; height: 100%;
-    display: flex; align-items: center; justify-content: center;
-    background: linear-gradient(135deg, #0d1a0d, #091209);
-    position: relative;
-  }
-  .session-thumb-icon { font-size: 48px; opacity: 0.3; }
-  .session-thumb-overlay {
-    position: absolute; inset: 0;
-    background: rgba(0,234,100,0.04);
-    display: flex; align-items: center; justify-content: center;
-    opacity: 0; transition: opacity 0.2s;
-  }
-  .session-card:hover .session-thumb-overlay { opacity: 1; }
-  .play-btn {
-    width: 54px; height: 54px; background: var(--green); border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 0 30px rgba(0,234,100,0.5);
-  }
-  .play-btn svg { width: 20px; height: 20px; fill: var(--darker); margin-left: 3px; }
-  .session-type-tag {
-    position: absolute; top: 12px; left: 12px;
-    font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.15em;
-    background: rgba(6,10,6,0.85); color: var(--green); border: 1px solid rgba(0,234,100,0.3);
-    padding: 4px 10px; border-radius: 2px;
-  }
-  .session-duration {
-    position: absolute; bottom: 10px; right: 10px;
-    font-family: 'JetBrains Mono', monospace; font-size: 10px;
-    background: rgba(6,10,6,0.85); color: var(--text); padding: 3px 8px; border-radius: 2px;
-  }
-  .session-info { padding: 20px; }
-  .session-date { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.1em; margin-bottom: 8px; }
-  .session-title { font-size: 15px; font-weight: 700; color: var(--white); line-height: 1.4; margin-bottom: 8px; }
-  .session-desc { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
-  .session-footer { display: flex; justify-content: space-between; align-items: center; }
-  .session-views { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
-  .session-watch-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em;
-    color: var(--green); text-decoration: none; padding: 6px 12px;
-    border: 1px solid rgba(0,234,100,0.25); border-radius: 2px; transition: all 0.2s;
-  }
-  .session-watch-btn:hover { background: rgba(0,234,100,0.08); border-color: var(--green); }
-  .session-watch-btn svg { width: 10px; height: 10px; fill: currentColor; }
-
-  .sessions-yt-cta {
-    margin-top: 40px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 24px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-  }
-  .yt-cta-left { display: flex; align-items: center; gap: 14px; }
-  .yt-icon { font-size: 28px; }
-  .yt-cta-left p { font-size: 14px; color: var(--muted); }
-  .yt-cta-left strong { display: block; font-size: 16px; color: var(--white); margin-bottom: 2px; }
-
-  /* TEAM */
-  .team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; }
-  .member-card { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 32px 24px; text-align: center; transition: all 0.3s ease; position: relative; overflow: hidden; }
-  .member-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--green); transform: scaleX(0); transition: transform 0.3s; }
-  .member-card:hover::before { transform: scaleX(1); }
-  .member-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-color: rgba(0,234,100,0.2); }
-  .member-avatar { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, rgba(0,234,100,0.2), rgba(0,234,100,0.05)); border: 2px solid rgba(0,234,100,0.3); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 22px; font-weight: 800; color: var(--green); font-family: 'Syne', sans-serif; }
-  .member-name { font-size: 16px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
-  .member-role { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--green); letter-spacing: 0.1em; }
-
-  /* CONSTITUTION */
-  .constitution { background: var(--dark); }
-  .constitution-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
-  .const-section { background: var(--card); padding: 36px; transition: background 0.2s; }
-  .const-section:hover { background: #131a13; }
-  .const-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--green); letter-spacing: 0.15em; margin-bottom: 10px; }
-  .const-section h3 { font-size: 18px; font-weight: 700; color: var(--white); margin-bottom: 14px; }
-  .const-section p, .const-section li { font-size: 14px; color: var(--muted); line-height: 1.8; }
-  .const-section ul { list-style: none; padding: 0; }
-  .const-section ul li { padding-left: 16px; position: relative; margin-bottom: 4px; }
-  .const-section ul li::before { content: '→'; position: absolute; left: 0; color: var(--green); font-size: 12px; }
-
-  /* JOIN */
-  .join { text-align: center; padding: 120px 48px; position: relative; overflow: hidden; }
-  .join::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(0,234,100,0.06) 0%, transparent 70%); }
-  .join .section-label { justify-content: center; }
-  .join .section-label::before { display: none; }
-  .join-title { font-size: clamp(40px, 7vw, 80px); font-weight: 800; color: var(--white); letter-spacing: -0.03em; line-height: 1; margin-bottom: 24px; }
-  .join-title em { font-style: normal; color: var(--green); }
-  .join-sub { color: var(--muted); font-size: 16px; max-width: 480px; margin: 0 auto 48px; line-height: 1.7; }
-  .email-reach { display: inline-flex; align-items: center; gap: 16px; background: var(--card); border: 1px solid rgba(0,234,100,0.25); border-radius: 6px; padding: 18px 32px; margin-top: 40px; text-decoration: none; transition: all 0.3s ease; position: relative; z-index: 1; }
-  .email-reach:hover { border-color: var(--green); transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,234,100,0.1); }
-  .email-reach-icon { width: 42px; height: 42px; background: rgba(0,234,100,0.1); border: 1px solid rgba(0,234,100,0.25); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-  .email-reach-info { text-align: left; }
-  .email-reach-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 5px; }
-  .email-reach-addr { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--green); letter-spacing: 0.04em; }
-  .offers-grid { margin-top: 80px; display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 16px; max-width: 800px; margin-left: auto; margin-right: auto; position: relative; z-index: 1; }
-  .offer-card { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 28px 20px; text-align: left; }
-  .offer-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--green); margin-bottom: 10px; letter-spacing: 0.1em; }
-  .offer-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
-
-  /* FOOTER */
-  footer { padding: 36px 48px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
-  .footer-brand { display: flex; align-items: center; gap: 10px; }
-  .footer-logo-svg { width: 26px; height: 26px; }
-  .footer-text { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
-  .footer-text span { color: var(--green); }
-  .footer-right { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
-
-  /* Scroll reveal */
-  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
-  .reveal.visible { opacity: 1; transform: translateY(0); }
-
-  @media (max-width: 960px) { .hero-right { display: none; } .leaderboard-layout { grid-template-columns: 1fr; } }
-  @media (max-width: 768px) {
-    nav { padding: 14px 20px; } .nav-links { display: none; }
-    section { padding: 80px 24px; }
-    .hero { padding: 120px 24px 80px; }
-    .constitution-grid { grid-template-columns: 1fr; }
-    .team-grid { grid-template-columns: repeat(2, 1fr); }
-    .stats-row { grid-template-columns: repeat(2, 1fr); }
-    .join { padding: 80px 24px; }
-    footer { padding: 28px 24px; }
-    .challenge-banner { flex-direction: column; }
-    .sessions-yt-cta { flex-direction: column; }
-  }
+:root{--green:#00ea64;--dark:#0a0f0a;--darker:#060a06;--card:#111711;--border:#1e2e1e;--muted:#4a6a4a;--text:#d4e8d4;--white:#f0f7f0;--gold:#f5c518;--silver:#a8b8a8;--bronze:#cd7f32;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{background:var(--darker);color:var(--text);font-family:'Syne',sans-serif;overflow-x:hidden;cursor:none;}
+.cursor{position:fixed;width:12px;height:12px;background:var(--green);border-radius:50%;pointer-events:none;z-index:9999;transition:transform 0.1s ease;mix-blend-mode:screen;}
+.cursor-ring{position:fixed;width:36px;height:36px;border:1px solid var(--green);border-radius:50%;pointer-events:none;z-index:9998;transition:all 0.15s ease;opacity:0.5;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:1000;opacity:0.4;}
+nav{position:fixed;top:0;width:100%;z-index:500;display:flex;justify-content:space-between;align-items:center;padding:14px 48px;background:rgba(6,10,6,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.nav-brand{display:flex;align-items:center;gap:12px;text-decoration:none;}
+.nav-text{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--green);letter-spacing:0.06em;}
+.nav-text span{color:var(--muted);}
+.nav-links{display:flex;gap:28px;list-style:none;}
+.nav-links a{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:0.1em;transition:color 0.2s;}
+.nav-links a:hover{color:var(--green);}
+.hero{min-height:100vh;display:flex;align-items:center;padding:120px 48px 80px;position:relative;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 75% 50%,rgba(0,234,100,0.07) 0%,transparent 70%),radial-gradient(ellipse 40% 60% at 20% 80%,rgba(0,234,100,0.03) 0%,transparent 60%);}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,234,100,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,234,100,0.03) 1px,transparent 1px);background-size:60px 60px;}
+.hero-content{position:relative;max-width:580px;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green);border:1px solid rgba(0,234,100,0.3);padding:6px 14px;border-radius:2px;margin-bottom:40px;letter-spacing:0.12em;animation:fadeUp 0.6s ease both;}
+.hero-badge::before{content:'';width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.8);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(52px,7vw,90px);font-weight:800;line-height:0.95;color:var(--white);letter-spacing:-0.03em;margin-bottom:32px;animation:fadeUp 0.6s 0.1s ease both;}
+.hero h1 em{font-style:normal;color:var(--green);display:block;}
+.hero-desc{font-size:17px;color:var(--muted);line-height:1.7;max-width:500px;margin-bottom:48px;animation:fadeUp 0.6s 0.2s ease both;}
+.hero-cta{display:flex;gap:16px;flex-wrap:wrap;animation:fadeUp 0.6s 0.3s ease both;}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;padding:14px 32px;background:var(--green);color:var(--darker);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;letter-spacing:0.08em;text-decoration:none;border-radius:2px;transition:all 0.2s;border:none;cursor:none;}
+.btn-primary:hover{background:#00ff70;transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,234,100,0.3);}
+.btn-secondary{display:inline-flex;align-items:center;gap:10px;padding:14px 32px;background:transparent;color:var(--green);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.08em;text-decoration:none;border:1px solid rgba(0,234,100,0.3);border-radius:2px;transition:all 0.2s;}
+.btn-secondary:hover{border-color:var(--green);background:rgba(0,234,100,0.05);}
+.hero-right{position:absolute;right:48px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:28px;animation:fadeUp 0.9s 0.4s ease both;}
+.hero-logo-svg{width:220px;height:220px;filter:drop-shadow(0 0 50px rgba(0,234,100,0.18));}
+.hero-code-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:18px 22px;width:260px;}
+.code-header{display:flex;align-items:center;gap:6px;margin-bottom:14px;}
+.dot{width:10px;height:10px;border-radius:50%;}.dot.r{background:#ff5f56;}.dot.y{background:#ffbd2e;}.dot.g{background:#27c93f;}
+.code-body{font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.8;color:var(--muted);}
+.code-body .kw{color:#c792ea;}.code-body .fn{color:#82aaff;}.code-body .str{color:var(--green);}.code-body .cm{color:#546e7a;}
+.typing-cursor{display:inline-block;width:2px;height:14px;background:var(--green);animation:blink 1s infinite;vertical-align:middle;}
+@keyframes blink{50%{opacity:0;}}
+section{padding:100px 48px;position:relative;}
+.section-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+.section-label::before{content:'';width:24px;height:1px;background:var(--green);}
+.section-title{font-size:clamp(36px,5vw,56px);font-weight:800;color:var(--white);letter-spacing:-0.02em;line-height:1.05;margin-bottom:16px;}
+.section-sub{color:var(--muted);font-size:16px;line-height:1.7;max-width:560px;margin-bottom:64px;}
+.stats{background:var(--card);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);}
+.stat-item{padding:40px 32px;border-right:1px solid var(--border);text-align:center;}
+.stat-item:last-child{border-right:none;}
+.stat-num{font-family:'Syne',sans-serif;font-size:48px;font-weight:800;color:var(--green);line-height:1;margin-bottom:8px;}
+.stat-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;}
+.mission{background:var(--dark);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.mission-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:2px;background:var(--border);border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+.mission-card{background:var(--card);padding:40px 36px;transition:background 0.2s;position:relative;overflow:hidden;}
+.mission-card::after{content:'';position:absolute;bottom:0;left:0;width:0;height:2px;background:var(--green);transition:width 0.3s ease;}
+.mission-card:hover::after{width:100%;}.mission-card:hover{background:#131a13;}
+.mission-icon{font-size:28px;margin-bottom:20px;display:block;}
+.mission-card h3{font-size:17px;font-weight:700;color:var(--white);margin-bottom:10px;}
+.mission-card p{font-size:14px;color:var(--muted);line-height:1.7;}
+#challenges{background:var(--darker);}
+.challenge-banner{background:linear-gradient(135deg,#0a1a0a 0%,#0d1f0d 50%,#091509 100%);border:1px solid rgba(0,234,100,0.25);border-radius:8px;padding:32px 40px;margin-bottom:48px;display:flex;align-items:center;justify-content:space-between;gap:24px;position:relative;overflow:hidden;}
+.challenge-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent);animation:scanline 3s ease infinite;}
+@keyframes scanline{0%,100%{opacity:0.4;}50%{opacity:1;}}
+.challenge-banner-left h3{font-size:22px;font-weight:800;color:var(--white);margin-bottom:6px;}
+.challenge-banner-left p{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.challenge-countdown{display:flex;gap:16px;}
+.countdown-unit{text-align:center;background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px 16px;min-width:60px;}
+.countdown-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--green);line-height:1;display:block;}
+.countdown-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.15em;margin-top:4px;display:block;}
+.challenges-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:48px;}
+.challenge-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:28px;transition:all 0.3s ease;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:16px;}
+.challenge-card:hover{border-color:rgba(0,234,100,0.3);transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,0,0,0.4);}
+.challenge-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--green);transform:scaleX(0);transition:transform 0.3s;}
+.challenge-card:hover::before{transform:scaleX(1);}
+.challenge-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+.challenge-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.15em;}
+.difficulty-badge{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;padding:3px 8px;border-radius:2px;text-transform:uppercase;}
+.diff-easy{background:rgba(0,234,100,0.12);color:var(--green);border:1px solid rgba(0,234,100,0.3);}
+.diff-medium{background:rgba(245,197,24,0.1);color:var(--gold);border:1px solid rgba(245,197,24,0.3);}
+.diff-hard{background:rgba(255,80,80,0.1);color:#ff8080;border:1px solid rgba(255,80,80,0.3);}
+.challenge-title{font-size:16px;font-weight:700;color:var(--white);line-height:1.3;}
+.challenge-desc{font-size:13px;color:var(--muted);line-height:1.7;flex:1;}
+.challenge-meta{display:flex;gap:16px;flex-wrap:wrap;}
+.challenge-meta span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);}
+.challenge-link{display:inline-flex;align-items:center;gap:8px;background:rgba(0,234,100,0.08);border:1px solid rgba(0,234,100,0.2);color:var(--green);font-family:'JetBrains Mono',monospace;font-size:11px;padding:10px 16px;border-radius:2px;text-decoration:none;letter-spacing:0.08em;transition:all 0.2s;align-self:flex-start;}
+.challenge-link:hover{background:rgba(0,234,100,0.15);border-color:var(--green);}
+.challenge-link svg{width:12px;height:12px;}
+.challenge-announce{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:32px;display:flex;align-items:flex-start;gap:20px;}
+.announce-icon{font-size:32px;flex-shrink:0;}
+.announce-body h4{font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px;}
+.announce-body p{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:16px;}
+.announce-dates{display:flex;gap:24px;flex-wrap:wrap;}
+.announce-date-item{display:flex;flex-direction:column;gap:2px;}
+.announce-date-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;}
+.announce-date-val{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--green);}
+#leaderboard{background:var(--dark);border-top:1px solid var(--border);}
+.leaderboard-layout{display:grid;grid-template-columns:1.2fr 1fr;gap:32px;align-items:start;}
+.submission-panel{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.submission-header{padding:20px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:#0d160d;}
+.submission-header h3{font-size:15px;font-weight:700;color:var(--white);}
+.submission-header .dot-live{width:8px;height:8px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;flex-shrink:0;}
+.submission-body{padding:28px;display:flex;flex-direction:column;gap:18px;}
+.sub-field{display:flex;flex-direction:column;gap:7px;}
+.sub-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--green);letter-spacing:0.18em;}
+.sub-input,.sub-select,.sub-textarea{background:#0d160d;border:1px solid var(--border);border-radius:3px;padding:12px 14px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;width:100%;}
+.sub-input:focus,.sub-select:focus,.sub-textarea:focus{border-color:rgba(0,234,100,0.4);box-shadow:0 0 0 3px rgba(0,234,100,0.06);}
+.sub-input::placeholder,.sub-textarea::placeholder{color:var(--muted);}
+.sub-select option{background:#0d160d;}
+.sub-textarea{min-height:80px;resize:vertical;}
+.score-preview{background:#0d160d;border:1px solid var(--border);border-radius:3px;padding:14px;display:flex;justify-content:space-between;align-items:center;}
+.score-preview-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);}
+.score-preview-val{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--green);}
+.sub-btn{padding:14px;background:var(--green);color:var(--darker);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;letter-spacing:0.1em;border:none;border-radius:2px;cursor:none;transition:all 0.2s;width:100%;}
+.sub-btn:hover{background:#00ff70;box-shadow:0 8px 30px rgba(0,234,100,0.3);}
+#sub-feedback{padding:12px 14px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px;text-align:center;display:none;}
+.fb-ok{background:rgba(0,234,100,0.08);border:1px solid rgba(0,234,100,0.3);color:var(--green);}
+.fb-err{background:rgba(255,80,80,0.08);border:1px solid rgba(255,80,80,0.3);color:#ff8080;}
+.leaderboard-panel{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.lb-header{padding:20px 24px;border-bottom:1px solid var(--border);background:#0d160d;display:flex;justify-content:space-between;align-items:center;}
+.lb-header h3{font-size:15px;font-weight:700;color:var(--white);}
+.lb-round-badge{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--green);border:1px solid rgba(0,234,100,0.3);padding:3px 10px;border-radius:2px;letter-spacing:0.1em;}
+.lb-table{width:100%;border-collapse:collapse;}
+.lb-table th{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.18em;text-transform:uppercase;text-align:left;padding:12px 20px;border-bottom:1px solid var(--border);background:#0a140a;}
+.lb-table td{padding:14px 20px;border-bottom:1px solid rgba(30,46,30,0.5);font-size:13px;color:var(--text);}
+.lb-table tr:last-child td{border-bottom:none;}
+.lb-table tbody tr{transition:background 0.15s;}
+.lb-table tbody tr:hover{background:rgba(0,234,100,0.03);}
+.lb-rank{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;}
+.rank-1{color:var(--gold);}.rank-2{color:var(--silver);}.rank-3{color:var(--bronze);}.rank-other{color:var(--muted);}
+.lb-name{font-weight:700;color:var(--white);}
+.lb-score{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--green);font-weight:700;}
+.lb-badge-cell{text-align:right;}
+.lb-medal{font-size:16px;}
+.lb-bar-wrap{width:60px;background:var(--border);border-radius:2px;height:4px;display:inline-block;vertical-align:middle;margin-left:8px;}
+.lb-bar{height:4px;background:var(--green);border-radius:2px;transition:width 0.6s ease;}
+.lb-empty{padding:32px 20px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);}
+#sessions{background:var(--darker);border-top:1px solid var(--border);}
+.sessions-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;}
+.session-card{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;transition:all 0.3s ease;}
+.session-card:hover{border-color:rgba(0,234,100,0.3);transform:translateY(-3px);box-shadow:0 20px 50px rgba(0,0,0,0.5);}
+.session-thumb{position:relative;aspect-ratio:16/9;background:#0a120a;overflow:hidden;cursor:none;}
+.session-thumb-bg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0d1a0d,#091209);position:relative;}
+.session-thumb-icon{font-size:48px;opacity:0.3;}
+.session-thumb-overlay{position:absolute;inset:0;background:rgba(0,234,100,0.04);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;}
+.session-card:hover .session-thumb-overlay{opacity:1;}
+.play-btn{width:54px;height:54px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(0,234,100,0.5);}
+.play-btn svg{width:20px;height:20px;fill:var(--darker);margin-left:3px;}
+.session-type-tag{position:absolute;top:12px;left:12px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;background:rgba(6,10,6,0.85);color:var(--green);border:1px solid rgba(0,234,100,0.3);padding:4px 10px;border-radius:2px;}
+.session-duration{position:absolute;bottom:10px;right:10px;font-family:'JetBrains Mono',monospace;font-size:10px;background:rgba(6,10,6,0.85);color:var(--text);padding:3px 8px;border-radius:2px;}
+.session-info{padding:20px;}
+.session-date{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.1em;margin-bottom:8px;}
+.session-title{font-size:15px;font-weight:700;color:var(--white);line-height:1.4;margin-bottom:8px;}
+.session-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px;}
+.session-footer{display:flex;justify-content:space-between;align-items:center;}
+.session-views{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);}
+.session-watch-btn{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:var(--green);text-decoration:none;padding:6px 12px;border:1px solid rgba(0,234,100,0.25);border-radius:2px;transition:all 0.2s;}
+.session-watch-btn:hover{background:rgba(0,234,100,0.08);border-color:var(--green);}
+.sessions-yt-cta{margin-top:40px;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:24px 32px;display:flex;align-items:center;justify-content:space-between;gap:20px;}
+.yt-cta-left{display:flex;align-items:center;gap:14px;}
+.yt-icon{font-size:28px;}
+.yt-cta-left p{font-size:14px;color:var(--muted);}
+.yt-cta-left strong{display:block;font-size:16px;color:var(--white);margin-bottom:2px;}
+.team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px;}
+.member-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:32px 24px;text-align:center;transition:all 0.3s ease;position:relative;overflow:hidden;}
+.member-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--green);transform:scaleX(0);transition:transform 0.3s;}
+.member-card:hover::before{transform:scaleX(1);}
+.member-card:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(0,0,0,0.4);border-color:rgba(0,234,100,0.2);}
+.member-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,rgba(0,234,100,0.2),rgba(0,234,100,0.05));border:2px solid rgba(0,234,100,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:22px;font-weight:800;color:var(--green);font-family:'Syne',sans-serif;}
+.member-name{font-size:16px;font-weight:700;color:var(--white);margin-bottom:6px;}
+.member-role{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green);letter-spacing:0.1em;}
+.constitution{background:var(--dark);}
+.constitution-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--border);border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+.const-section{background:var(--card);padding:36px;transition:background 0.2s;}
+.const-section:hover{background:#131a13;}
+.const-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green);letter-spacing:0.15em;margin-bottom:10px;}
+.const-section h3{font-size:18px;font-weight:700;color:var(--white);margin-bottom:14px;}
+.const-section p,.const-section li{font-size:14px;color:var(--muted);line-height:1.8;}
+.const-section ul{list-style:none;padding:0;}
+.const-section ul li{padding-left:16px;position:relative;margin-bottom:4px;}
+.const-section ul li::before{content:'\2192';position:absolute;left:0;color:var(--green);font-size:12px;}
+.join{text-align:center;padding:120px 48px;position:relative;overflow:hidden;}
+.join::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(0,234,100,0.06) 0%,transparent 70%);}
+.join .section-label{justify-content:center;}.join .section-label::before{display:none;}
+.join-title{font-size:clamp(40px,7vw,80px);font-weight:800;color:var(--white);letter-spacing:-0.03em;line-height:1;margin-bottom:24px;}
+.join-title em{font-style:normal;color:var(--green);}
+.join-sub{color:var(--muted);font-size:16px;max-width:480px;margin:0 auto 48px;line-height:1.7;}
+.email-reach{display:inline-flex;align-items:center;gap:16px;background:var(--card);border:1px solid rgba(0,234,100,0.25);border-radius:6px;padding:18px 32px;margin-top:40px;text-decoration:none;transition:all 0.3s ease;position:relative;z-index:1;}
+.email-reach:hover{border-color:var(--green);transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,234,100,0.1);}
+.email-reach-icon{width:42px;height:42px;background:rgba(0,234,100,0.1);border:1px solid rgba(0,234,100,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.email-reach-info{text-align:left;}
+.email-reach-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.18em;text-transform:uppercase;margin-bottom:5px;}
+.email-reach-addr{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--green);letter-spacing:0.04em;}
+.offers-grid{margin-top:80px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;max-width:800px;margin-left:auto;margin-right:auto;position:relative;z-index:1;}
+.offer-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:28px 20px;text-align:left;}
+.offer-tag{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green);margin-bottom:10px;letter-spacing:0.1em;}
+.offer-card p{font-size:14px;color:var(--muted);line-height:1.7;}
+footer{padding:36px 48px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+.footer-text{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);}
+.footer-text span{color:var(--green);}
+.footer-right{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.6s ease,transform 0.6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+@media(max-width:960px){.hero-right{display:none;}.leaderboard-layout{grid-template-columns:1fr;}}
+@media(max-width:768px){nav{padding:14px 20px;}.nav-links{display:none;}section{padding:80px 24px;}.hero{padding:120px 24px 80px;}.constitution-grid{grid-template-columns:1fr;}.team-grid{grid-template-columns:repeat(2,1fr);}.stats-row{grid-template-columns:repeat(2,1fr);}.join{padding:80px 24px;}footer{padding:28px 24px;}.challenge-banner{flex-direction:column;}.sessions-yt-cta{flex-direction:column;}}
 </style>
 </head>
 <body>
-
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="cursorRing"></div>
-
-<!-- NAV -->
 <nav>
   <a class="nav-brand" href="#">
-    <svg class="logo-svg" viewBox="0 0 34 34" fill="none">
-      <rect width="34" height="34" rx="6" fill="#00ea64"/>
-      <rect x="9" y="10" width="3" height="14" rx="1" fill="#060a06"/>
-      <rect x="9" y="16" width="8" height="3" rx="1" fill="#060a06"/>
-      <rect x="14" y="10" width="3" height="14" rx="1" fill="#060a06"/>
-      <rect x="19" y="10" width="3" height="8" rx="1" fill="#060a06"/>
-      <path d="M19 18 L25 24" stroke="#060a06" stroke-width="3" stroke-linecap="round"/>
-      <rect x="19" y="18" width="6" height="3" rx="1" fill="#060a06"/>
-    </svg>
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="6" fill="#00ea64"/><rect x="9" y="10" width="3" height="14" rx="1" fill="#060a06"/><rect x="9" y="16" width="8" height="3" rx="1" fill="#060a06"/><rect x="14" y="10" width="3" height="14" rx="1" fill="#060a06"/><rect x="19" y="10" width="3" height="8" rx="1" fill="#060a06"/><path d="M19 18 L25 24" stroke="#060a06" stroke-width="3" stroke-linecap="round"/><rect x="19" y="18" width="6" height="3" rx="1" fill="#060a06"/></svg>
     <div class="nav-text">hackerrank<span>_</span>crew<span>@unisa</span></div>
   </a>
   <ul class="nav-links">
@@ -476,22 +228,19 @@
     <li><a href="#join">// join</a></li>
   </ul>
 </nav>
-
-<!-- HERO -->
 <section class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-grid"></div>
+  <div class="hero-bg"></div><div class="hero-grid"></div>
   <div class="hero-content">
-    <div class="hero-badge">UNISA CAMPUS CREW · EST. 2026</div>
+    <div class="hero-badge">UNISA CAMPUS CREW &middot; EST. 2026</div>
     <h1>Code.<br>Compete.<em>Conquer.</em></h1>
-    <p class="hero-desc">The HackerRank Campus Crew at UNISA — building South Africa's next generation of tech leaders through coding, community, and competition.</p>
+    <p class="hero-desc">The HackerRank Campus Crew at UNISA &mdash; building South Africa&apos;s next generation of tech leaders through coding, community, and competition.</p>
     <div class="hero-cta">
-      <a href="#challenges" class="btn-primary">↗ This Month's Challenges</a>
-      <a href="#leaderboard" class="btn-secondary">📊 Leaderboard</a>
+      <a href="#challenges" class="btn-primary">&#x2197; This Round&apos;s Challenges</a>
+      <a href="#leaderboard" class="btn-secondary">&#x1F4CA; Leaderboard</a>
     </div>
   </div>
   <div class="hero-right">
-    <svg class="hero-logo-svg" viewBox="0 0 220 220" fill="none">
+    <svg class="hero-logo-svg" width="220" height="220" viewBox="0 0 220 220" fill="none">
       <circle cx="110" cy="110" r="105" stroke="#00ea64" stroke-width="1" stroke-opacity="0.15" stroke-dasharray="8 6"/>
       <polygon points="110,18 192,63 192,153 110,198 28,153 28,63" fill="#111711" stroke="#00ea64" stroke-width="1.5" stroke-opacity="0.5"/>
       <polygon points="110,38 172,73 172,143 110,178 48,143 48,73" fill="none" stroke="#00ea64" stroke-width="0.5" stroke-opacity="0.25"/>
@@ -501,7 +250,7 @@
       <rect x="102" y="76" width="10" height="44" rx="2" fill="#00ea64"/>
       <path d="M112 76 Q136 76 136 90 Q136 104 112 104" stroke="#00ea64" stroke-width="10" fill="none" stroke-linecap="round"/>
       <path d="M116 102 L136 120" stroke="#00ea64" stroke-width="9" stroke-linecap="round"/>
-      <text x="110" y="162" dominant-baseline="middle" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="12" fill="#4a6a4a" letter-spacing="5">UNISA</text>
+      <text x="110" y="162" dominant-baseline="middle" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="#4a6a4a" letter-spacing="5">UNISA</text>
       <circle cx="110" cy="18" r="4" fill="#00ea64" opacity="0.7"/>
       <circle cx="192" cy="63" r="3" fill="#00ea64" opacity="0.4"/>
       <circle cx="192" cy="153" r="3" fill="#00ea64" opacity="0.4"/>
@@ -522,103 +271,53 @@
     </div>
   </div>
 </section>
-
-<!-- STATS -->
 <div class="stats">
   <div class="stats-row">
     <div class="stat-item reveal"><div class="stat-num">5</div><div class="stat-label">Founding Members</div></div>
     <div class="stat-item reveal"><div class="stat-num">50%</div><div class="stat-label">Min. Attendance</div></div>
-    <div class="stat-item reveal"><div class="stat-num">∞</div><div class="stat-label">Problems to Solve</div></div>
+    <div class="stat-item reveal"><div class="stat-num">&#x221E;</div><div class="stat-label">Problems to Solve</div></div>
     <div class="stat-item reveal"><div class="stat-num">R0</div><div class="stat-label">Membership Fee</div></div>
   </div>
 </div>
-
-<!-- MISSION -->
 <section class="mission" id="mission">
   <div class="section-label">Our Mission</div>
   <h2 class="section-title">Why We Exist</h2>
-  <p class="section-sub">We're building a community where UNISA students can sharpen technical skills and connect with the global tech ecosystem.</p>
+  <p class="section-sub">We&apos;re building a community where UNISA students can sharpen technical skills and connect with the global tech ecosystem.</p>
   <div class="mission-grid reveal">
-    <div class="mission-card"><span class="mission-icon">⚡</span><h3>Problem Solving</h3><p>Sharpen algorithmic thinking and data structures through regular challenges and competitive programming.</p></div>
-    <div class="mission-card"><span class="mission-icon">🤝</span><h3>Community Building</h3><p>Create a supportive network of tech enthusiasts who learn, grow, and build together at UNISA.</p></div>
-    <div class="mission-card"><span class="mission-icon">🏆</span><h3>Competitions</h3><p>Participate in local and global coding competitions, hackathons, and HackerRank challenges.</p></div>
-    <div class="mission-card"><span class="mission-icon">🎓</span><h3>Mentorship</h3><p>Connect senior and junior students in peer learning and mentorship programs that accelerate growth.</p></div>
+    <div class="mission-card"><span class="mission-icon">&#x26A1;</span><h3>Problem Solving</h3><p>Sharpen algorithmic thinking and data structures through regular challenges and competitive programming.</p></div>
+    <div class="mission-card"><span class="mission-icon">&#x1F91D;</span><h3>Community Building</h3><p>Create a supportive network of tech enthusiasts who learn, grow, and build together at UNISA.</p></div>
+    <div class="mission-card"><span class="mission-icon">&#x1F3C6;</span><h3>Competitions</h3><p>Participate in local and global coding competitions, hackathons, and HackerRank challenges.</p></div>
+    <div class="mission-card"><span class="mission-icon">&#x1F393;</span><h3>Mentorship</h3><p>Connect senior and junior students in peer learning and mentorship programs that accelerate growth.</p></div>
   </div>
 </section>
 
-<!-- ════════════════════════════════════════════
-     BI-MONTHLY CHALLENGES
-════════════════════════════════════════════ -->
+<!-- CHALLENGES: fully rendered by JS -->
 <section id="challenges">
-  <div class="section-label">Fortnightly · Every Two Weeks</div>
-  <h2 class="section-title">Challenge Round #1</h2>
-  <p class="section-sub">Every fortnight (two weeks) a new challenge set drops — 5 problems, 14 days to solve them, leaderboard resets each round. Round 1 closes 11 March 2026.</p>
-
-  <!-- Fortnightly Schedule -->
+  <div class="section-label">Fortnightly &middot; Every Two Weeks</div>
+  <h2 class="section-title" id="round-title">Challenge Round</h2>
+  <p class="section-sub" id="round-sub">Loading current round...</p>
   <div class="reveal" style="margin-bottom:48px;">
     <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;">
       <div style="padding:16px 24px;border-bottom:1px solid var(--border);background:#0d160d;display:flex;align-items:center;justify-content:space-between;">
         <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--white);font-weight:700;">2026 Challenge Calendar</span>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">// new round every 14 days · Thursday 08:00 SAST</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">// new round every 14 days &middot; Thursday 08:00 SAST</span>
       </div>
-      <div style="overflow-x:auto;">
-      <table style="width:100%;border-collapse:collapse;">
-        <thead>
-          <tr style="background:#0a140a;">
-            <th style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.18em;text-align:left;padding:10px 20px;border-bottom:1px solid var(--border);">ROUND</th>
-            <th style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.18em;text-align:left;padding:10px 20px;border-bottom:1px solid var(--border);">OPENS</th>
-            <th style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.18em;text-align:left;padding:10px 20px;border-bottom:1px solid var(--border);">CLOSES</th>
-            <th style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.18em;text-align:left;padding:10px 20px;border-bottom:1px solid var(--border);">FOCUS TOPIC</th>
-            <th style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.18em;text-align:left;padding:10px 20px;border-bottom:1px solid var(--border);">STATUS</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr style="background:rgba(0,234,100,0.03);">
-            <td style="padding:14px 20px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--green);font-weight:700;border-bottom:1px solid rgba(30,46,30,0.5);">#01</td>
-            <td style="padding:14px 20px;font-size:13px;color:var(--text);border-bottom:1px solid rgba(30,46,30,0.5);">26 Feb 2026</td>
-            <td style="padding:14px 20px;font-size:13px;color:var(--text);border-bottom:1px solid rgba(30,46,30,0.5);">11 Mar 2026</td>
-            <td style="padding:14px 20px;font-size:13px;color:var(--text);border-bottom:1px solid rgba(30,46,30,0.5);">Foundations · Arrays · SQL · Graphs · DP</td>
-            <td style="padding:14px 20px;border-bottom:1px solid rgba(30,46,30,0.5);"><span style="font-family:'JetBrains Mono',monospace;font-size:9px;background:rgba(0,234,100,0.12);color:var(--green);border:1px solid rgba(0,234,100,0.3);padding:3px 10px;border-radius:2px;letter-spacing:0.12em;">🟢 LIVE</span></td>
-          </tr>
-          <tr>
-            <td style="padding:14px 20px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);border-bottom:1px solid rgba(30,46,30,0.5);">#02</td>
-            <td style="padding:14px 20px;font-size:13px;color:var(--muted);border-bottom:1px solid rgba(30,46,30,0.5);">12 Mar 2026</td>
-            <td style="padding:14px 20px;font-size:13px;color:var(--muted);border-bottom:1px solid rgba(30,46,30,0.5);">25 Mar 2026</td>
-            <td style="padding:14px 20px;font-size:13px;color:var(--muted);border-bottom:1px solid rgba(30,46,30,0.5);">Recursion · Regex · REST API Design</td>
-            <td style="padding:14px 20px;border-bottom:1px solid rgba(30,46,30,0.5);"><span style="font-family:'JetBrains Mono',monospace;font-size:9px;background:rgba(74,106,74,0.1);color:var(--muted);border:1px solid var(--border);padding:3px 10px;border-radius:2px;letter-spacing:0.12em;">UPCOMING</span></td>
-          </tr>
-          <tr>
-            <td style="padding:14px 20px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);border-bottom:1px solid rgba(30,46,30,0.5);">#03</td>
-            <td style="padding:14px 20px;font-size:13px;color:var(--muted);border-bottom:1px solid rgba(30,46,30,0.5);">26 Mar 2026</td>
-            <td style="padding:14px 20px;font-size:13px;color:var(--muted);border-bottom:1px solid rgba(30,46,30,0.5);">08 Apr 2026</td>
-            <td style="padding:14px 20px;font-size:13px;color:var(--muted);border-bottom:1px solid rgba(30,46,30,0.5);">Trees · Heaps · Priority Queues</td>
-            <td style="padding:14px 20px;border-bottom:1px solid rgba(30,46,30,0.5);"><span style="font-family:'JetBrains Mono',monospace;font-size:9px;background:rgba(74,106,74,0.1);color:var(--muted);border:1px solid var(--border);padding:3px 10px;border-radius:2px;letter-spacing:0.12em;">UPCOMING</span></td>
-          </tr>
-          <tr>
-            <td style="padding:14px 20px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);border-bottom:1px solid rgba(30,46,30,0.5);">#04</td>
-            <td style="padding:14px 20px;font-size:13px;color:var(--muted);border-bottom:1px solid rgba(30,46,30,0.5);">09 Apr 2026</td>
-            <td style="padding:14px 20px;font-size:13px;color:var(--muted);border-bottom:1px solid rgba(30,46,30,0.5);">22 Apr 2026</td>
-            <td style="padding:14px 20px;font-size:13px;color:var(--muted);border-bottom:1px solid rgba(30,46,30,0.5);">Bit Manipulation · Math · Number Theory</td>
-            <td style="padding:14px 20px;border-bottom:1px solid rgba(30,46,30,0.5);"><span style="font-family:'JetBrains Mono',monospace;font-size:9px;background:rgba(74,106,74,0.1);color:var(--muted);border:1px solid var(--border);padding:3px 10px;border-radius:2px;letter-spacing:0.12em;">UPCOMING</span></td>
-          </tr>
-          <tr>
-            <td style="padding:14px 20px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);">#05</td>
-            <td style="padding:14px 20px;font-size:13px;color:var(--muted);">23 Apr 2026</td>
-            <td style="padding:14px 20px;font-size:13px;color:var(--muted);">06 May 2026</td>
-            <td style="padding:14px 20px;font-size:13px;color:var(--muted);">Mixed Bag · Interview Prep · Boss Round</td>
-            <td style="padding:14px 20px;"><span style="font-family:'JetBrains Mono',monospace;font-size:9px;background:rgba(74,106,74,0.1);color:var(--muted);border:1px solid var(--border);padding:3px 10px;border-radius:2px;letter-spacing:0.12em;">UPCOMING</span></td>
-          </tr>
-        </tbody>
-      </table>
-      </div>
+      <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;">
+        <thead><tr style="background:#0a140a;">
+          <th style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.18em;text-align:left;padding:10px 20px;border-bottom:1px solid var(--border);">ROUND</th>
+          <th style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.18em;text-align:left;padding:10px 20px;border-bottom:1px solid var(--border);">OPENS</th>
+          <th style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.18em;text-align:left;padding:10px 20px;border-bottom:1px solid var(--border);">CLOSES</th>
+          <th style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.18em;text-align:left;padding:10px 20px;border-bottom:1px solid var(--border);">FOCUS TOPIC</th>
+          <th style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.18em;text-align:left;padding:10px 20px;border-bottom:1px solid var(--border);">STATUS</th>
+        </tr></thead>
+        <tbody id="cal-body"></tbody>
+      </table></div>
     </div>
   </div>
-
-  <!-- Countdown Banner -->
   <div class="challenge-banner reveal">
     <div class="challenge-banner-left">
-      <h3>🚀 Round 1 is LIVE — 26 Feb – 11 Mar 2026</h3>
-      <p>// deadline · 11 march 2026 · 23:59 SAST &nbsp;·&nbsp; new round every 14 days</p>
+      <h3 id="banner-title">Loading...</h3>
+      <p id="banner-sub"></p>
     </div>
     <div class="challenge-countdown">
       <div class="countdown-unit"><span class="countdown-num" id="cd-d">--</span><span class="countdown-label">DAYS</span></div>
@@ -627,301 +326,93 @@
       <div class="countdown-unit"><span class="countdown-num" id="cd-s">--</span><span class="countdown-label">SEC</span></div>
     </div>
   </div>
-
-  <!-- 5 Challenge Cards -->
-  <div class="challenges-grid reveal">
-
-    <div class="challenge-card">
-      <div class="challenge-header">
-        <span class="challenge-num">// CHALLENGE 01</span>
-        <span class="difficulty-badge diff-easy">Easy</span>
-      </div>
-      <div class="challenge-title">Hello World Series</div>
-      <div class="challenge-desc">Master the fundamentals — print patterns, string manipulation, and basic I/O in Python, Java, or C++. Perfect warm-up for newcomers.</div>
-      <div class="challenge-meta">
-        <span>⏱ ~30 min</span>
-        <span>🏅 10 pts</span>
-        <span>🐍 Python / Java / C++</span>
-      </div>
-      <a href="https://www.hackerrank.com/domains/tutorials/30-days-of-code" target="_blank" class="challenge-link">
-        <svg viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H5M10 2V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        Open on HackerRank
-      </a>
-    </div>
-
-    <div class="challenge-card">
-      <div class="challenge-header">
-        <span class="challenge-num">// CHALLENGE 02</span>
-        <span class="difficulty-badge diff-easy">Easy</span>
-      </div>
-      <div class="challenge-title">Array Manipulation</div>
-      <div class="challenge-desc">Solve classic array problems — sorting, searching, two-pointer techniques, and prefix sums. Build the core toolkit every developer needs.</div>
-      <div class="challenge-meta">
-        <span>⏱ ~45 min</span>
-        <span>🏅 15 pts</span>
-        <span>📊 Data Structures</span>
-      </div>
-      <a href="https://www.hackerrank.com/challenges/crush/problem" target="_blank" class="challenge-link">
-        <svg viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H5M10 2V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        Open on HackerRank
-      </a>
-    </div>
-
-    <div class="challenge-card">
-      <div class="challenge-header">
-        <span class="challenge-num">// CHALLENGE 03</span>
-        <span class="difficulty-badge diff-medium">Medium</span>
-      </div>
-      <div class="challenge-title">SQL Query Mastery</div>
-      <div class="challenge-desc">Write real SQL — JOINs, GROUP BY, window functions, and subqueries on real-world datasets. Data skills are non-negotiable in 2026.</div>
-      <div class="challenge-meta">
-        <span>⏱ ~60 min</span>
-        <span>🏅 20 pts</span>
-        <span>🗄️ SQL</span>
-      </div>
-      <a href="https://www.hackerrank.com/domains/sql" target="_blank" class="challenge-link">
-        <svg viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H5M10 2V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        Open on HackerRank
-      </a>
-    </div>
-
-    <div class="challenge-card">
-      <div class="challenge-header">
-        <span class="challenge-num">// CHALLENGE 04</span>
-        <span class="difficulty-badge diff-medium">Medium</span>
-      </div>
-      <div class="challenge-title">Graph Traversal</div>
-      <div class="challenge-desc">Navigate BFS, DFS, shortest path, and cycle detection. Graph problems dominate technical interviews at top companies — start here.</div>
-      <div class="challenge-meta">
-        <span>⏱ ~75 min</span>
-        <span>🏅 25 pts</span>
-        <span>🕸️ Algorithms</span>
-      </div>
-      <a href="https://www.hackerrank.com/domains/algorithms/graph-theory" target="_blank" class="challenge-link">
-        <svg viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H5M10 2V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        Open on HackerRank
-      </a>
-    </div>
-
-    <div class="challenge-card">
-      <div class="challenge-header">
-        <span class="challenge-num">// CHALLENGE 05</span>
-        <span class="difficulty-badge diff-hard">Hard</span>
-      </div>
-      <div class="challenge-title">Dynamic Programming Boss</div>
-      <div class="challenge-desc">The final boss — memoization, tabulation, knapsack, LCS, and more. Crack this and you'll be ready for any competitive programming arena.</div>
-      <div class="challenge-meta">
-        <span>⏱ ~90 min</span>
-        <span>🏅 30 pts</span>
-        <span>🧠 Advanced Algorithms</span>
-      </div>
-      <a href="https://www.hackerrank.com/domains/algorithms/dynamic-programming" target="_blank" class="challenge-link">
-        <svg viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H5M10 2V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        Open on HackerRank
-      </a>
-    </div>
-
-  </div>
-
-  <!-- Next round announcement -->
-  <div class="challenge-announce reveal">
-    <div class="announce-icon">📢</div>
-    <div class="announce-body">
-      <h4>⚡ Round 2 drops 12 March 2026</h4>
-      <p>A new fortnightly challenge set drops every second Thursday at 08:00 SAST. Round 2 runs 12–25 March 2026 and will cover recursion, regex, and REST API design — plus a mystery boss challenge. Subscribe or email us to get notified.</p>
-      <div class="announce-dates">
-        <div class="announce-date-item">
-          <span class="announce-date-label">Round Opens</span>
-          <span class="announce-date-val">12 MAR 2026</span>
-        </div>
-        <div class="announce-date-item">
-          <span class="announce-date-label">Round Closes</span>
-          <span class="announce-date-val">25 MAR 2026</span>
-        </div>
-        <div class="announce-date-item">
-          <span class="announce-date-label">Max Points</span>
-          <span class="announce-date-val">100 PTS</span>
-        </div>
-        <div class="announce-date-item">
-          <span class="announce-date-label">Notify Me</span>
-          <span class="announce-date-val"><a href="mailto:hackerrankunisa@gmail.com" style="color:var(--green);text-decoration:none;">Email us →</a></span>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div class="challenges-grid reveal" id="ch-cards"></div>
+  <div class="challenge-announce reveal" id="ch-announce"></div>
 </section>
 
-<!-- ════════════════════════════════════════════
-     LEADERBOARD + SUBMISSION
-════════════════════════════════════════════ -->
 <section id="leaderboard">
   <div class="section-label">Live Rankings</div>
   <h2 class="section-title">Leaderboard</h2>
-  <p class="section-sub">Submit your HackerRank solution link and score after completing each challenge. Rankings update instantly. Top 3 each round earn recognition.</p>
-
+  <p class="section-sub">Submit your HackerRank solution link after completing each challenge. Rankings update instantly. Top 3 each round earn recognition.</p>
   <div class="leaderboard-layout reveal">
-
-    <!-- LEFT: Submission Form -->
     <div class="submission-panel">
-      <div class="submission-header">
-        <div class="dot-live"></div>
-        <h3>Submit Your Solution</h3>
-      </div>
+      <div class="submission-header"><div class="dot-live"></div><h3>Submit Your Solution</h3></div>
       <div class="submission-body">
-        <div class="sub-field">
-          <label class="sub-label">// YOUR NAME</label>
-          <input type="text" class="sub-input" id="sub-name" placeholder="Full name or alias">
-        </div>
-        <div class="sub-field">
-          <label class="sub-label">// STUDENT NUMBER</label>
-          <input type="text" class="sub-input" id="sub-student" placeholder="UNISA student number">
-        </div>
-        <div class="sub-field">
-          <label class="sub-label">// CHALLENGE COMPLETED</label>
+        <div class="sub-field"><label class="sub-label">// YOUR NAME</label><input type="text" class="sub-input" id="sub-name" placeholder="Full name or alias"></div>
+        <div class="sub-field"><label class="sub-label">// STUDENT NUMBER</label><input type="text" class="sub-input" id="sub-student" placeholder="UNISA student number"></div>
+        <div class="sub-field"><label class="sub-label">// CHALLENGE COMPLETED</label>
           <select class="sub-select" id="sub-challenge">
             <option value="">Select challenge...</option>
-            <option value="10">Challenge 01 — Hello World Series (10 pts)</option>
-            <option value="15">Challenge 02 — Array Manipulation (15 pts)</option>
-            <option value="20">Challenge 03 — SQL Query Mastery (20 pts)</option>
-            <option value="25">Challenge 04 — Graph Traversal (25 pts)</option>
-            <option value="30">Challenge 05 — Dynamic Programming Boss (30 pts)</option>
+            <option value="10">Challenge 01 &mdash; Hello World Series (10 pts)</option>
+            <option value="15">Challenge 02 &mdash; Array Manipulation (15 pts)</option>
+            <option value="20">Challenge 03 &mdash; SQL Query Mastery (20 pts)</option>
+            <option value="25">Challenge 04 &mdash; Graph Traversal (25 pts)</option>
+            <option value="30">Challenge 05 &mdash; Dynamic Programming Boss (30 pts)</option>
           </select>
         </div>
-        <div class="sub-field">
-          <label class="sub-label">// HACKERRANK SOLUTION LINK</label>
-          <input type="url" class="sub-input" id="sub-link" placeholder="https://www.hackerrank.com/challenges/...">
-        </div>
-        <div class="sub-field">
-          <label class="sub-label">// COMPLETION TIME (optional)</label>
-          <input type="text" class="sub-input" id="sub-time" placeholder="e.g. 42 minutes">
-        </div>
-        <div class="sub-field">
-          <label class="sub-label">// NOTES / APPROACH (optional)</label>
-          <textarea class="sub-textarea sub-input" id="sub-notes" placeholder="Briefly describe your approach..."></textarea>
-        </div>
-        <div class="score-preview">
-          <span class="score-preview-label">Points to be awarded</span>
-          <span class="score-preview-val" id="score-preview-val">0 pts</span>
-        </div>
-        <button class="sub-btn" onclick="submitSolution()">↗ Submit Solution</button>
+        <div class="sub-field"><label class="sub-label">// HACKERRANK SOLUTION LINK</label><input type="url" class="sub-input" id="sub-link" placeholder="https://www.hackerrank.com/challenges/..."></div>
+        <div class="sub-field"><label class="sub-label">// COMPLETION TIME (optional)</label><input type="text" class="sub-input" id="sub-time" placeholder="e.g. 42 minutes"></div>
+        <div class="sub-field"><label class="sub-label">// NOTES / APPROACH (optional)</label><textarea class="sub-textarea sub-input" id="sub-notes" placeholder="Briefly describe your approach..."></textarea></div>
+        <div class="score-preview"><span class="score-preview-label">Points to be awarded</span><span class="score-preview-val" id="score-preview-val">0 pts</span></div>
+        <button class="sub-btn" onclick="submitSolution()">&#x2197; Submit Solution</button>
         <div id="sub-feedback"></div>
       </div>
     </div>
-
-    <!-- RIGHT: Leaderboard Table -->
     <div class="leaderboard-panel">
       <div class="lb-header">
-        <h3>🏆 Round 1 Rankings</h3>
-        <span class="lb-round-badge">// ROUND 1 · 26 FEB – 11 MAR</span>
+        <h3>&#x1F3C6; <span id="lb-round-title">Round</span> Rankings</h3>
+        <span class="lb-round-badge" id="lb-round-badge">// ROUND</span>
       </div>
-      <table class="lb-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Participant</th>
-            <th>Score</th>
-            <th>Done</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="lb-body">
-          <tr><td colspan="5" class="lb-empty">// no submissions yet — be the first!</td></tr>
-        </tbody>
-      </table>
-      <div style="padding:16px 20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">// total max score: 100 pts</span>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);" id="lb-count">0 participants</span>
+      <!-- Tabs -->
+      <div style="display:flex;border-bottom:1px solid var(--border);background:#0a140a;">
+        <button id="tab-round" onclick="switchTab('round')" style="flex:1;padding:12px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.1em;border:none;border-bottom:2px solid var(--green);background:transparent;color:var(--green);cursor:none;transition:all 0.2s;">// THIS ROUND</button>
+        <button id="tab-alltime" onclick="switchTab('alltime')" style="flex:1;padding:12px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.1em;border:none;border-bottom:2px solid transparent;background:transparent;color:var(--muted);cursor:none;transition:all 0.2s;">// ALL-TIME</button>
+      </div>
+      <!-- Round tab -->
+      <div id="pane-round">
+        <table class="lb-table">
+          <thead><tr><th>#</th><th>Participant</th><th>Score</th><th>Done</th><th></th></tr></thead>
+          <tbody id="lb-body-round"><tr><td colspan="5" class="lb-empty">// loading...</td></tr></tbody>
+        </table>
+        <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">// max 100 pts per round</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);" id="lb-count-round">0 participants</span>
+        </div>
+      </div>
+      <!-- All-time tab -->
+      <div id="pane-alltime" style="display:none;">
+        <table class="lb-table">
+          <thead><tr><th>#</th><th>Participant</th><th>Total</th><th>Rounds</th><th></th></tr></thead>
+          <tbody id="lb-body-alltime"><tr><td colspan="5" class="lb-empty">// loading...</td></tr></tbody>
+        </table>
+        <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">// cumulative across all rounds</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);" id="lb-count-alltime">0 participants</span>
+        </div>
       </div>
     </div>
-
   </div>
 </section>
 
-<!-- ════════════════════════════════════════════
-     PREVIOUS SESSIONS / YOUTUBE
-════════════════════════════════════════════ -->
 <section id="sessions">
   <div class="section-label">Recordings</div>
   <h2 class="section-title">Previous Sessions</h2>
-  <p class="section-sub">Missed a session? Every workshop, challenge walkthrough, and mentorship session is recorded and published to our YouTube channel. Watch at your own pace.</p>
-
+  <p class="section-sub">Missed a session? Every workshop, challenge walkthrough, and mentorship session is recorded and published to our YouTube channel.</p>
   <div class="sessions-grid reveal">
-
-    <div class="session-card">
-      <div class="session-thumb">
-        <div class="session-thumb-bg">
-          <span class="session-thumb-icon">💻</span>
-        </div>
-        <div class="session-type-tag">KICKOFF</div>
-        <div class="session-duration">1:12:34</div>
-        <div class="session-thumb-overlay">
-          <div class="play-btn">
-            <svg viewBox="0 0 20 20"><polygon points="5,3 19,10 5,17"/></svg>
-          </div>
-        </div>
-      </div>
-      <div class="session-info">
-        <div class="session-date">15 MAR 2026</div>
-        <div class="session-title">Club Kickoff — Welcome &amp; Platform Walkthrough</div>
-        <div class="session-desc">Our very first session. Introduction to HackerRank, how to set up your profile, join the club contest, and tackle your first challenge live.</div>
-        <div class="session-footer">
-          <span class="session-views">👁 142 views</span>
-          <a href="https://www.youtube.com/watch?v=wko-8FJSh0g&t=34s" target="_blank" class="session-watch-btn">
-            <svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg>
-            Watch Now
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <div class="session-card">
-      <div class="session-thumb">
-        <div class="session-thumb-bg">
-          <span class="session-thumb-icon">🐍</span>
-        </div>
-        <div class="session-type-tag">WORKSHOP</div>
-        <div class="session-duration">58:20</div>
-        <div class="session-thumb-overlay">
-          <div class="play-btn">
-            <svg viewBox="0 0 20 20"><polygon points="5,3 19,10 5,17"/></svg>
-          </div>
-        </div>
-      </div>
-      <div class="session-info">
-        <div class="session-date">29 MAR 2026</div>
-        <div class="session-title">Python Problem Solving — Arrays &amp; List Comprehensions</div>
-        <div class="session-desc">Live coding session tackling 8 HackerRank Easy–Medium problems in Python. Covers list comprehensions, lambda functions, and algorithm patterns.</div>
-        <div class="session-footer">
-          <span class="session-views">👁 98 views</span>
-          <a href="https://www.youtube.com/watch?v=JhhCyTkrg9o&t=33s" target="_blank" class="session-watch-btn">
-            <svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg>
-            Watch Now
-          </a>
-        </div>
-      </div>
-    </div>
-
-    
-  <!-- YouTube Channel CTA -->
+    <div class="session-card"><div class="session-thumb"><div class="session-thumb-bg"><span class="session-thumb-icon">&#x1F4BB;</span></div><div class="session-type-tag">KICKOFF</div><div class="session-duration">1:12:34</div><div class="session-thumb-overlay"><div class="play-btn"><svg viewBox="0 0 20 20"><polygon points="5,3 19,10 5,17"/></svg></div></div></div><div class="session-info"><div class="session-date">15 MAR 2026</div><div class="session-title">Club Kickoff &mdash; Welcome &amp; Platform Walkthrough</div><div class="session-desc">Our very first session. Introduction to HackerRank, how to set up your profile, and tackle your first challenge live.</div><div class="session-footer"><span class="session-views">&#x1F441; 142 views</span><a href="https://www.youtube.com/@HackerRankCampusCrewUNISA" target="_blank" class="session-watch-btn">&#x25B6; Watch Now</a></div></div></div>
+    <div class="session-card"><div class="session-thumb"><div class="session-thumb-bg"><span class="session-thumb-icon">&#x1F40D;</span></div><div class="session-type-tag">WORKSHOP</div><div class="session-duration">58:20</div><div class="session-thumb-overlay"><div class="play-btn"><svg viewBox="0 0 20 20"><polygon points="5,3 19,10 5,17"/></svg></div></div></div><div class="session-info"><div class="session-date">29 MAR 2026</div><div class="session-title">Python Problem Solving &mdash; Arrays &amp; List Comprehensions</div><div class="session-desc">Live coding session tackling 8 HackerRank Easy&ndash;Medium problems in Python.</div><div class="session-footer"><span class="session-views">&#x1F441; 98 views</span><a href="https://www.youtube.com/@HackerRankCampusCrewUNISA" target="_blank" class="session-watch-btn">&#x25B6; Watch Now</a></div></div></div>
+    <div class="session-card"><div class="session-thumb"><div class="session-thumb-bg"><span class="session-thumb-icon">&#x1F3C6;</span></div><div class="session-type-tag">CHALLENGE</div><div class="session-duration">2:04:11</div><div class="session-thumb-overlay"><div class="play-btn"><svg viewBox="0 0 20 20"><polygon points="5,3 19,10 5,17"/></svg></div></div></div><div class="session-info"><div class="session-date">12 APR 2026</div><div class="session-title">Internal Coding Challenge &mdash; Live Leaderboard Battle</div><div class="session-desc">Full recording of our first internal timed challenge. Watch the leaderboard update in real-time.</div><div class="session-footer"><span class="session-views">&#x1F441; 213 views</span><a href="https://www.youtube.com/@HackerRankCampusCrewUNISA" target="_blank" class="session-watch-btn">&#x25B6; Watch Now</a></div></div></div>
+  </div>
   <div class="sessions-yt-cta reveal">
-    <div class="yt-cta-left">
-      <div class="yt-icon">📺</div>
-      <div>
-        <strong>HackerRank Campus Crew UNISA — YouTube</strong>
-        <p>Subscribe to get notified when new session recordings go live. All content is free and open to every UNISA student.</p>
-      </div>
-    </div>
-    <a href="https://www.youtube.com/@SimangaMchunu" target="_blank" class="btn-primary" style="flex-shrink:0;">
-      ↗ Subscribe on YouTube
-    </a>
+    <div class="yt-cta-left"><div class="yt-icon">&#x1F4FA;</div><div><strong>HackerRank Campus Crew UNISA &mdash; YouTube</strong><p>Subscribe to get notified when new session recordings go live.</p></div></div>
+    <a href="https://www.youtube.com/@HackerRankCampusCrewUNISA" target="_blank" class="btn-primary">&#x2197; Subscribe on YouTube</a>
   </div>
 </section>
 
-<!-- TEAM -->
 <section id="team" style="background:var(--dark);border-top:1px solid var(--border);">
   <div class="section-label">Founding Members</div>
   <h2 class="section-title">The Crew</h2>
-  <p class="section-sub">Meet the founding members who are driving the HackerRank Campus Crew at UNISA forward.</p>
+  <p class="section-sub">Meet the founding members driving the HackerRank Campus Crew at UNISA forward.</p>
   <div class="team-grid reveal">
     <div class="member-card"><div class="member-avatar">SM</div><div class="member-name">Simanga Mchunu</div><div class="member-role">// President</div></div>
     <div class="member-card"><div class="member-avatar">YI</div><div class="member-name">Yusairah Ismail</div><div class="member-role">// Secretary</div></div>
@@ -931,37 +422,32 @@
   </div>
 </section>
 
-<!-- CONSTITUTION -->
 <section class="constitution" id="constitution">
   <div class="section-label">Governance</div>
   <h2 class="section-title">Club Constitution</h2>
   <p class="section-sub">Our founding document that guides how we operate, make decisions, and serve our members.</p>
   <div class="constitution-grid reveal">
-    <div class="const-section"><div class="const-num">01 · NAME</div><h3>HackerRank Campus Crew – UNISA</h3><p>Officially: <em>HackerRank Campus Crew – University of South Africa (UNISA)</em>. A student-led tech club dedicated to coding excellence.</p></div>
-    <div class="const-section"><div class="const-num">02 · MEMBERSHIP</div><h3>Who Can Join</h3><ul><li>All registered UNISA students</li><li>Must attend ≥ 50% of meetings per semester</li><li>Register with the club — membership is free</li><li>Active participation is strongly encouraged</li></ul></div>
-    <div class="const-section"><div class="const-num">03 · STRUCTURE</div><h3>Executive Committee</h3><ul><li>President — leads &amp; coordinates with UNISA SRC</li><li>Vice-President — member engagement support</li><li>Secretary — records &amp; communications</li><li>Treasurer — manages club resources</li><li>Event Coordinator — plans all club events</li></ul></div>
-    <div class="const-section"><div class="const-num">04 · MEETINGS</div><h3>How We Gather</h3><ul><li>General meetings at least once monthly</li><li>Special coding sessions scheduled as needed</li><li>Quorum: 50% of active members required</li><li>All decisions documented by the Secretary</li></ul></div>
-    <div class="const-section"><div class="const-num">05 · VOTING</div><h3>Decision Making</h3><ul><li>Simple majority vote for general decisions</li><li>Executive vote required for financial decisions</li><li>Constitutional amendments require ⅔ majority</li><li>Any member may propose amendments</li></ul></div>
-    <div class="const-section"><div class="const-num">06 · DISSOLUTION</div><h3>If We Ever Part Ways</h3><p>In the event of dissolution, all remaining club resources shall be donated to a UNISA-recognized tech or coding initiative, ensuring our legacy continues.</p></div>
+    <div class="const-section"><div class="const-num">01 &middot; NAME</div><h3>HackerRank Campus Crew &ndash; UNISA</h3><p>Officially: <em>HackerRank Campus Crew &ndash; University of South Africa (UNISA)</em>. A student-led tech club dedicated to coding excellence.</p></div>
+    <div class="const-section"><div class="const-num">02 &middot; MEMBERSHIP</div><h3>Who Can Join</h3><ul><li>All registered UNISA students</li><li>Must attend &ge; 50% of meetings per semester</li><li>Register with the club &mdash; membership is free</li><li>Active participation is strongly encouraged</li></ul></div>
+    <div class="const-section"><div class="const-num">03 &middot; STRUCTURE</div><h3>Executive Committee</h3><ul><li>President &mdash; leads &amp; coordinates with UNISA SRC</li><li>Vice-President &mdash; member engagement support</li><li>Secretary &mdash; records &amp; communications</li><li>Treasurer &mdash; manages club resources</li><li>Event Coordinator &mdash; plans all club events</li></ul></div>
+    <div class="const-section"><div class="const-num">04 &middot; MEETINGS</div><h3>How We Gather</h3><ul><li>General meetings at least once monthly</li><li>Special coding sessions scheduled as needed</li><li>Quorum: 50% of active members required</li><li>All decisions documented by the Secretary</li></ul></div>
+    <div class="const-section"><div class="const-num">05 &middot; VOTING</div><h3>Decision Making</h3><ul><li>Simple majority vote for general decisions</li><li>Executive vote required for financial decisions</li><li>Constitutional amendments require 2/3 majority</li><li>Any member may propose amendments</li></ul></div>
+    <div class="const-section"><div class="const-num">06 &middot; DISSOLUTION</div><h3>If We Ever Part Ways</h3><p>In the event of dissolution, all remaining club resources shall be donated to a UNISA-recognized tech or coding initiative.</p></div>
   </div>
 </section>
 
-<!-- JOIN -->
 <section class="join" id="join">
   <div class="section-label">Get Involved</div>
   <h2 class="join-title">Ready to<br><em>Level Up?</em></h2>
-  <p class="join-sub">Join the HackerRank Campus Crew — sharpen your skills, compete fortnightly, climb the leaderboard, and watch yourself grow. It's free.</p>
+  <p class="join-sub">Join the HackerRank Campus Crew &mdash; sharpen your skills, compete fortnightly, climb the leaderboard, and watch yourself grow. It&apos;s free.</p>
   <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1;">
-    <a href="https://www.hackerrank.com" target="_blank" class="btn-primary">↗ Visit HackerRank</a>
-    <a href="mailto:hackerrankunisa@gmail.com" class="btn-secondary">✉ Contact the Club</a>
+    <a href="https://www.hackerrank.com" target="_blank" class="btn-primary">&#x2197; Visit HackerRank</a>
+    <a href="/cdn-cgi/l/email-protection#1971787a727c6b6b7877726c77706a78597e74787075377a7674" class="btn-secondary">&#x2709; Contact the Club</a>
   </div>
   <div style="display:flex;justify-content:center;margin-top:36px;">
-    <a href="mailto:hackerrankunisa@gmail.com" class="email-reach">
-      <div class="email-reach-icon">✉</div>
-      <div class="email-reach-info">
-        <div class="email-reach-label">Reach out to us</div>
-        <div class="email-reach-addr">hackerrankunisa@gmail.com</div>
-      </div>
+    <a href="/cdn-cgi/l/email-protection#6901080a020c1b1b0807021c07001a08290e04080005470a0604" class="email-reach">
+      <div class="email-reach-icon">&#x2709;</div>
+      <div class="email-reach-info"><div class="email-reach-label">Reach out to us</div><div class="email-reach-addr"><span class="__cf_email__" data-cfemail="98f0f9fbf3fdeaeaf9f6f3edf6f1ebf9d8fff5f9f1f4b6fbf7f5">[email&#160;protected]</span></div></div>
     </a>
   </div>
   <div class="offers-grid">
@@ -972,179 +458,223 @@
   </div>
 </section>
 
-<!-- FOOTER -->
 <footer>
-  <div class="footer-brand">
-    <svg class="footer-logo-svg" viewBox="0 0 34 34" fill="none">
-      <rect width="34" height="34" rx="6" fill="#00ea64"/>
-      <rect x="9" y="10" width="3" height="14" rx="1" fill="#060a06"/>
-      <rect x="9" y="16" width="8" height="3" rx="1" fill="#060a06"/>
-      <rect x="14" y="10" width="3" height="14" rx="1" fill="#060a06"/>
-      <rect x="19" y="10" width="3" height="8" rx="1" fill="#060a06"/>
-      <path d="M19 18 L25 24" stroke="#060a06" stroke-width="3" stroke-linecap="round"/>
-      <rect x="19" y="18" width="6" height="3" rx="1" fill="#060a06"/>
-    </svg>
-    <div class="footer-text"><span>hackerrank</span>_crew<span>@unisa</span> · 2026</div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <svg width="26" height="26" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="6" fill="#00ea64"/><rect x="9" y="10" width="3" height="14" rx="1" fill="#060a06"/><rect x="9" y="16" width="8" height="3" rx="1" fill="#060a06"/><rect x="14" y="10" width="3" height="14" rx="1" fill="#060a06"/><rect x="19" y="10" width="3" height="8" rx="1" fill="#060a06"/><path d="M19 18 L25 24" stroke="#060a06" stroke-width="3" stroke-linecap="round"/><rect x="19" y="18" width="6" height="3" rx="1" fill="#060a06"/></svg>
+    <div class="footer-text"><span>hackerrank</span>_crew<span>@unisa</span> &middot; 2026</div>
   </div>
-  <div class="footer-right">University of South Africa · Campus Crew</div>
+  <div class="footer-right">University of South Africa &middot; Campus Crew</div>
 </footer>
 
-<script>
-  /* ── Custom cursor ── */
-  const cursor = document.getElementById('cursor');
-  const ring   = document.getElementById('cursorRing');
-  let mx=0,my=0,rx=0,ry=0;
-  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx-6+'px';cursor.style.top=my-6+'px';});
-  function animRing(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.left=rx-18+'px';ring.style.top=ry-18+'px';requestAnimationFrame(animRing);}
-  animRing();
-  document.querySelectorAll('a,button').forEach(el=>{
-    el.addEventListener('mouseenter',()=>cursor.style.transform='scale(2)');
-    el.addEventListener('mouseleave',()=>cursor.style.transform='scale(1)');
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+/* ── Cursor ── */
+const cur=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx-6+'px';cur.style.top=my-6+'px';});
+(function anim(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx-18+'px';ring.style.top=ry-18+'px';requestAnimationFrame(anim);})();
+document.querySelectorAll('a,button').forEach(el=>{el.addEventListener('mouseenter',()=>cur.style.transform='scale(2)');el.addEventListener('mouseleave',()=>cur.style.transform='scale(1)');});
+
+/* ── Scroll reveal ── */
+document.querySelectorAll('.reveal').forEach(el=>new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible');});},{threshold:.08}).observe(el));
+
+/* ── Score preview ── */
+document.getElementById('sub-challenge').addEventListener('change',function(){document.getElementById('score-preview-val').textContent=this.value?this.value+' pts':'0 pts';});
+
+/* ══════════════════════════
+   ROUND ENGINE
+══════════════════════════ */
+const ROUNDS=[
+  {num:1,opens:'2026-02-26',closes:'2026-03-11',topic:'Foundations \u00B7 Arrays \u00B7 SQL \u00B7 Graphs \u00B7 DP'},
+  {num:2,opens:'2026-03-12',closes:'2026-03-25',topic:'Recursion \u00B7 Regex \u00B7 REST API Design'},
+  {num:3,opens:'2026-03-26',closes:'2026-04-08',topic:'Trees \u00B7 Heaps \u00B7 Priority Queues'},
+  {num:4,opens:'2026-04-09',closes:'2026-04-22',topic:'Bit Manipulation \u00B7 Math \u00B7 Number Theory'},
+  {num:5,opens:'2026-04-23',closes:'2026-05-06',topic:'Mixed Bag \u00B7 Interview Prep \u00B7 Boss Round'},
+];
+const CH=[
+  {num:'01',title:'Hello World Series',diff:'easy',pts:10,time:'~30 min',tag:'Python / Java / C++',url:'https://www.hackerrank.com/domains/tutorials/30-days-of-code',desc:'Master the fundamentals \u2014 print patterns, string manipulation, and basic I/O. Perfect warm-up for newcomers.'},
+  {num:'02',title:'Array Manipulation',diff:'easy',pts:15,time:'~45 min',tag:'Data Structures',url:'https://www.hackerrank.com/challenges/crush/problem',desc:'Solve classic array problems \u2014 sorting, searching, two-pointer techniques, and prefix sums.'},
+  {num:'03',title:'SQL Query Mastery',diff:'medium',pts:20,time:'~60 min',tag:'SQL',url:'https://www.hackerrank.com/domains/sql',desc:'Write real SQL \u2014 JOINs, GROUP BY, window functions, and subqueries on real-world datasets.'},
+  {num:'04',title:'Graph Traversal',diff:'medium',pts:25,time:'~75 min',tag:'Algorithms',url:'https://www.hackerrank.com/domains/algorithms/graph-theory',desc:'Navigate BFS, DFS, shortest path, and cycle detection. Graph problems dominate technical interviews.'},
+  {num:'05',title:'Dynamic Programming Boss',diff:'hard',pts:30,time:'~90 min',tag:'Advanced Algorithms',url:'https://www.hackerrank.com/domains/algorithms/dynamic-programming',desc:'The final boss \u2014 memoization, tabulation, knapsack, LCS, and more.'},
+];
+
+function pd(s){return new Date(s+'T00:00:00+02:00');}
+function fd(s){return pd(s).toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'});}
+
+function getActive(){
+  const now=Date.now();
+  for(const r of ROUNDS){if(now>=pd(r.opens)&&now<=pd(r.closes).getTime()+86400000)return{r,state:'live'};}
+  for(const r of ROUNDS){if(now<pd(r.opens))return{r,state:'upcoming'};}
+  return{r:ROUNDS[4],state:'ended'};
+}
+
+function buildCal(){
+  const now=Date.now();
+  document.getElementById('cal-body').innerHTML=ROUNDS.map((r,i)=>{
+    const o=pd(r.opens),c=pd(r.closes).getTime()+86400000;
+    const live=now>=o&&now<=c,ended=now>c,last=i===ROUNDS.length-1;
+    const br=last?'':'border-bottom:1px solid rgba(30,46,30,0.5);';
+    const nc=live?'color:var(--green)':'color:var(--muted)';
+    const tc=live?'color:var(--text)':'color:var(--muted)';
+    const rb=live
+      ?'<span style="font-family:\'JetBrains Mono\',monospace;font-size:9px;background:rgba(0,234,100,0.12);color:var(--green);border:1px solid rgba(0,234,100,0.3);padding:3px 10px;border-radius:2px;">&#x1F7E2; LIVE</span>'
+      :ended
+        ?'<span style="font-family:\'JetBrains Mono\',monospace;font-size:9px;background:rgba(74,106,74,0.1);color:var(--muted);border:1px solid var(--border);padding:3px 10px;border-radius:2px;">ENDED</span>'
+        :'<span style="font-family:\'JetBrains Mono\',monospace;font-size:9px;background:rgba(74,106,74,0.1);color:var(--muted);border:1px solid var(--border);padding:3px 10px;border-radius:2px;">UPCOMING</span>';
+    const bg=live?'background:rgba(0,234,100,0.03);':'';
+    return`<tr style="${bg}"><td style="padding:14px 20px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;${nc};${br}">#0${r.num}</td><td style="padding:14px 20px;font-size:13px;${tc};${br}">${fd(r.opens)}</td><td style="padding:14px 20px;font-size:13px;${tc};${br}">${fd(r.closes)}</td><td style="padding:14px 20px;font-size:13px;${tc};${br}">${r.topic}</td><td style="padding:14px 20px;${br}">${rb}</td></tr>`;
+  }).join('');
+}
+
+function buildCards(){
+  document.getElementById('ch-cards').innerHTML=CH.map(c=>{
+    const dc=c.diff==='easy'?'diff-easy':c.diff==='medium'?'diff-medium':'diff-hard';
+    return`<div class="challenge-card"><div class="challenge-header"><span class="challenge-num">// CHALLENGE ${c.num}</span><span class="difficulty-badge ${dc}">${c.diff}</span></div><div class="challenge-title">${c.title}</div><div class="challenge-desc">${c.desc}</div><div class="challenge-meta"><span>&#x23F1; ${c.time}</span><span>&#x1F3C5; ${c.pts} pts</span><span>${c.tag}</span></div><a href="${c.url}" target="_blank" class="challenge-link"><svg viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H5M10 2V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Open on HackerRank</a></div>`;
+  }).join('');
+}
+
+function buildAnnounce(r){
+  const el=document.getElementById('ch-announce');
+  const ni=r.num; // 1-based, so index of next in array
+  if(ni>=ROUNDS.length){el.innerHTML='<div class="announce-icon">&#x1F3C6;</div><div class="announce-body"><h4>Season 1 Complete!</h4><p>All 5 rounds finished. Final standings are locked. Watch for Season 2 announcements.</p></div>';return;}
+  const nx=ROUNDS[ni];
+  el.innerHTML=`<div class="announce-icon">&#x1F4E2;</div><div class="announce-body"><h4>&#x26A1; Round ${nx.num} drops ${fd(nx.opens)}</h4><p>A new challenge set drops every second Thursday at 08:00 SAST. Round ${nx.num} runs ${fd(nx.opens)}\u2013${fd(nx.closes)} covering: ${nx.topic}.</p><div class="announce-dates"><div class="announce-date-item"><span class="announce-date-label">Round Opens</span><span class="announce-date-val">${fd(nx.opens).toUpperCase()}</span></div><div class="announce-date-item"><span class="announce-date-label">Round Closes</span><span class="announce-date-val">${fd(nx.closes).toUpperCase()}</span></div><div class="announce-date-item"><span class="announce-date-label">Max Points</span><span class="announce-date-val">100 PTS</span></div><div class="announce-date-item"><span class="announce-date-label">Notify Me</span><span class="announce-date-val"><a href="mailto:hackerrankunisa@gmail.com" style="color:var(--green);text-decoration:none;">Email us &#x2192;</a></span></div></div></div>`;
+}
+
+var cdTarget=null;
+function tick(){
+  if(!cdTarget){['cd-d','cd-h','cd-m','cd-s'].forEach(id=>document.getElementById(id).textContent='--');return;}
+  const d=Math.max(0,cdTarget-Date.now());
+  document.getElementById('cd-d').textContent=String(Math.floor(d/86400000)).padStart(2,'0');
+  document.getElementById('cd-h').textContent=String(Math.floor((d%86400000)/3600000)).padStart(2,'0');
+  document.getElementById('cd-m').textContent=String(Math.floor((d%3600000)/60000)).padStart(2,'0');
+  document.getElementById('cd-s').textContent=String(Math.floor((d%60000)/1000)).padStart(2,'0');
+}
+
+function initRounds(){
+  const{r,state}=getActive();
+  document.getElementById('round-title').textContent='Challenge Round #'+r.num;
+  document.getElementById('round-sub').textContent=state==='live'
+    ?'Round '+r.num+' is live now \u2014 5 challenges, closes '+fd(r.closes)+'. Submit your solutions below.'
+    :state==='upcoming'?'Round '+r.num+' opens '+fd(r.opens)+'. Get ready!'
+    :'All 5 rounds of Season 1 are complete. Final standings locked.';
+  if(state==='live'){
+    document.getElementById('banner-title').textContent='\uD83D\uDE80 Round '+r.num+' is LIVE \u2014 '+fd(r.opens)+' \u2013 '+fd(r.closes);
+    document.getElementById('banner-sub').textContent='// closes '+fd(r.closes)+' \u00B7 23:59 SAST \u00B7 new round every 14 days';
+    cdTarget=pd(r.closes).getTime()+86400000-60000;
+  }else if(state==='upcoming'){
+    document.getElementById('banner-title').textContent='\u23F3 Round '+r.num+' opens '+fd(r.opens);
+    document.getElementById('banner-sub').textContent='// drops at 08:00 SAST \u00B7 get ready!';
+    cdTarget=pd(r.opens).getTime();
+  }else{
+    document.getElementById('banner-title').textContent='\uD83C\uDFC6 Season 1 Complete!';
+    document.getElementById('banner-sub').textContent='// all 5 rounds finished \u00B7 final standings locked';
+    cdTarget=null;
+  }
+  document.getElementById('lb-round-title').textContent='Round '+r.num;
+  document.getElementById('lb-round-badge').textContent='// ROUND '+r.num+' \u00B7 '+fd(r.opens).toUpperCase()+' \u2013 '+fd(r.closes).toUpperCase();
+  buildCal();buildCards();buildAnnounce(r);
+}
+
+/* ══════════════════════════
+   LEADERBOARD
+══════════════════════════ */
+const API='/.netlify/functions/leaderboard';
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* current active tab */
+var activeTab='round';
+function switchTab(tab){
+  activeTab=tab;
+  document.getElementById('pane-round').style.display=tab==='round'?'block':'none';
+  document.getElementById('pane-alltime').style.display=tab==='alltime'?'block':'none';
+  var tr=document.getElementById('tab-round'),ta=document.getElementById('tab-alltime');
+  tr.style.color=tab==='round'?'var(--green)':'var(--muted)';
+  tr.style.borderBottom=tab==='round'?'2px solid var(--green)':'2px solid transparent';
+  ta.style.color=tab==='alltime'?'var(--green)':'var(--muted)';
+  ta.style.borderBottom=tab==='alltime'?'2px solid var(--green)':'2px solid transparent';
+}
+
+function renderTable(tbodyId, cntId, rows, cols){
+  /* cols: array of {key, label, fmt} */
+  const body=document.getElementById(tbodyId),cnt=document.getElementById(cntId);
+  if(!rows||!rows.length){body.innerHTML='<tr><td colspan="5" class="lb-empty">// no submissions yet \u2014 be the first!</td></tr>';cnt.textContent='0 participants';return;}
+  const sorted=[...rows].sort((a,b)=>b[cols[0]]-a[cols[0]]||a.name.localeCompare(b.name));
+  const mx=Math.max(...sorted.map(p=>p[cols[0]]),1);
+  body.innerHTML=sorted.map((p,i)=>{
+    const rk=i+1,rc=rk===1?'rank-1':rk===2?'rank-2':rk===3?'rank-3':'rank-other';
+    const md=rk===1?'\uD83E\uDD47':rk===2?'\uD83E\uDD48':rk===3?'\uD83E\uDD49':'';
+    const bw=Math.round((p[cols[0]]/mx)*60);
+    return`<tr>
+      <td class="lb-rank ${rc}">${String(rk).padStart(2,'0')}</td>
+      <td class="lb-name">${esc(p.name)}</td>
+      <td class="lb-score">${p[cols[0]]}<span class="lb-bar-wrap"><span class="lb-bar" style="width:${bw}px"></span></span></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">${p[cols[1]]}</td>
+      <td class="lb-badge-cell">${md}</td>
+    </tr>`;
+  }).join('');
+  cnt.textContent=sorted.length+' participant'+(sorted.length!==1?'s':'');
+}
+
+function buildAllTime(participants){
+  /* merge all rounds per student number */
+  const map={};
+  participants.forEach(p=>{
+    const sn=p.studentNum;
+    if(!map[sn]){map[sn]={name:p.name,total:p.score,rounds:new Set([p.round])};}
+    else{map[sn].total+=p.score;map[sn].rounds.add(p.round);}
   });
+  return Object.values(map).map(p=>({name:p.name,total:p.total,rounds:p.rounds.size+'R'}));
+}
 
-  /* ── Scroll reveal ── */
-  document.querySelectorAll('.reveal').forEach(el=>new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
-  },{threshold:0.08}).observe(el));
+function renderLB(ps){
+  const currentRound=String(getActive().r.num);
+  const roundPs=ps.filter(p=>String(p.round)===currentRound);
+  renderTable('lb-body-round','lb-count-round',roundPs.map(p=>({name:p.name,score:p.score,done:p.challenges+'/5'})),['score','done']);
+  const allTime=buildAllTime(ps);
+  renderTable('lb-body-alltime','lb-count-alltime',allTime.map(p=>({name:p.name,score:p.total,done:p.rounds})),['score','done']);
+}
 
-  /* ── Countdown to 11 March 2026 23:59 SAST ── */
-  function updateCountdown(){
-    const deadline = new Date('2026-03-11T23:59:00+02:00');
-    const diff = Math.max(0, deadline - new Date());
-    const d = Math.floor(diff/86400000);
-    const h = Math.floor((diff%86400000)/3600000);
-    const m = Math.floor((diff%3600000)/60000);
-    const s = Math.floor((diff%60000)/1000);
-    document.getElementById('cd-d').textContent = String(d).padStart(2,'0');
-    document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
-    document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
-    document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
-  }
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
+async function fetchLB(){
+  ['lb-body-round','lb-body-alltime'].forEach(id=>{document.getElementById(id).innerHTML='<tr><td colspan="5" class="lb-empty">// loading...</td></tr>';});
+  try{const r=await fetch(API+'?t='+Date.now()),d=await r.json();if(d&&d.success)renderLB(d.participants);}
+  catch(e){document.getElementById('lb-body-round').innerHTML=`<tr><td colspan="5" class="lb-empty" style="color:#ff8080">// error: ${esc(e.message)}</td></tr>`;}
+}
 
-  /* ── Score preview ── */
-  document.getElementById('sub-challenge').addEventListener('change', function(){
-    document.getElementById('score-preview-val').textContent = this.value ? this.value + ' pts' : '0 pts';
-  });
+function showFb(msg,cls){const fb=document.getElementById('sub-feedback');fb.style.display='block';fb.className=cls;fb.textContent=msg;setTimeout(()=>fb.style.display='none',7000);}
 
-  /* ══════════════════════════════════════════════════════
-     LEADERBOARD — via Netlify proxy function
-     browser → /.netlify/functions/leaderboard → Apps Script
-  ══════════════════════════════════════════════════════ */
-  const API = '/.netlify/functions/leaderboard';
+async function submitSolution(){
+  const name=document.getElementById('sub-name').value.trim();
+  const student=document.getElementById('sub-student').value.trim();
+  const sel=document.getElementById('sub-challenge');
+  const pts=parseInt(sel.value||0);
+  const link=document.getElementById('sub-link').value.trim();
+  const btn=document.querySelector('.sub-btn');
+  if(!name)return showFb('\u2717 Please enter your name.','fb-err');
+  if(!student)return showFb('\u2717 Please enter your student number.','fb-err');
+  if(!pts)return showFb('\u2717 Please select a challenge.','fb-err');
+  if(!link||!link.startsWith('http'))return showFb('\u2717 Please paste a valid HackerRank URL.','fb-err');
+  btn.disabled=true;btn.textContent='\u23F3 Submitting...';
+  try{
+    const payload={studentNum:student,name,challengeIdx:sel.selectedIndex-1,pts,link,round:String(getActive().r.num)};
+    const res=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+    const data=await res.json();
+    if(data&&data.success){
+      renderLB(data.participants);
+      showFb('\u2713 +'+pts+' pts submitted! Leaderboard updated.','fb-ok');
+      ['sub-name','sub-student','sub-link','sub-time','sub-notes'].forEach(id=>document.getElementById(id).value='');
+      sel.selectedIndex=0;document.getElementById('score-preview-val').textContent='0 pts';
+    }else if(data&&data.error==='duplicate'){
+      showFb('\u2139 Already submitted this challenge \u2014 each one counts once.','fb-err');
+    }else{showFb('\u2717 '+(data&&data.error||'Unknown error'),'fb-err');}
+  }catch(e){showFb('\u2717 Could not reach server: '+e.message,'fb-err');}
+  finally{btn.disabled=false;btn.textContent='\u2197 Submit Solution';}
+}
 
-  function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-  function renderLeaderboard(participants){
-    const body  = document.getElementById('lb-body');
-    const count = document.getElementById('lb-count');
-    if(!participants || !participants.length){
-      body.innerHTML = '<tr><td colspan="5" class="lb-empty">// no submissions yet — be the first!</td></tr>';
-      count.textContent = '0 participants';
-      return;
-    }
-    const sorted   = [...participants].sort((a,b) => b.score - a.score || a.name.localeCompare(b.name));
-    const maxScore = Math.max(...sorted.map(p=>p.score), 1);
-    body.innerHTML = sorted.map((p,i) => {
-      const rank      = i + 1;
-      const rankClass = rank===1?'rank-1':rank===2?'rank-2':rank===3?'rank-3':'rank-other';
-      const medal     = rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'';
-      const barW      = Math.round((p.score / maxScore) * 60);
-      return `<tr>
-        <td class="lb-rank ${rankClass}">${String(rank).padStart(2,'0')}</td>
-        <td class="lb-name">${escHtml(p.name)}</td>
-        <td class="lb-score">${p.score}<span class="lb-bar-wrap"><span class="lb-bar" style="width:${barW}px"></span></span></td>
-        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">${p.challenges}/5</td>
-        <td class="lb-badge-cell"><span class="lb-medal">${medal}</span></td>
-      </tr>`;
-    }).join('');
-    count.textContent = sorted.length + ' participant' + (sorted.length !== 1 ? 's' : '');
-  }
-
-  function lbState(msg, isError){
-    document.getElementById('lb-body').innerHTML =
-      `<tr><td colspan="5" class="lb-empty" style="color:${isError?'#ff8080':'var(--muted)'}">${msg}</td></tr>`;
-  }
-
-  async function fetchLeaderboard(){
-    lbState('// loading...', false);
-    try {
-      const res  = await fetch(API + '?t=' + Date.now());
-      const data = await res.json();
-      if(data && data.success) renderLeaderboard(data.participants);
-      else lbState('// error: ' + (data && data.error || 'unknown'), true);
-    } catch(err) {
-      lbState('// could not load leaderboard — ' + err.message, true);
-    }
-  }
-
-  function showFb(msg, cls){
-    const fb = document.getElementById('sub-feedback');
-    fb.style.display = 'block';
-    fb.className     = cls;
-    fb.textContent   = msg;
-    setTimeout(()=>{ fb.style.display='none'; }, 7000);
-  }
-
-  async function submitSolution(){
-    const name    = document.getElementById('sub-name').value.trim();
-    const student = document.getElementById('sub-student').value.trim();
-    const chSel   = document.getElementById('sub-challenge');
-    const pts     = parseInt(chSel.value || 0);
-    const link    = document.getElementById('sub-link').value.trim();
-    const btn     = document.querySelector('.sub-btn');
-
-    if(!name)                           { showFb('✗ Please enter your name.','fb-err'); return; }
-    if(!student)                        { showFb('✗ Please enter your student number.','fb-err'); return; }
-    if(!pts)                            { showFb('✗ Please select a challenge.','fb-err'); return; }
-    if(!link||!link.startsWith('http')) { showFb('✗ Please paste a valid HackerRank solution URL.','fb-err'); return; }
-
-    btn.disabled    = true;
-    btn.textContent = '⏳ Submitting...';
-
-    try {
-      const payload = {
-        studentNum   : student,
-        name         : name,
-        challengeIdx : chSel.selectedIndex - 1,
-        pts          : pts,
-        link         : link,
-        round        : '1'
-      };
-      const res  = await fetch(API, {
-        method  : 'POST',
-        headers : { 'Content-Type': 'text/plain' },
-        body    : JSON.stringify(payload)
-      });
-      const data = await res.json();
-
-      if(data && data.success){
-        renderLeaderboard(data.participants);
-        showFb('✓ +' + pts + ' pts submitted! Leaderboard updated.', 'fb-ok');
-        document.getElementById('sub-name').value    = '';
-        document.getElementById('sub-student').value = '';
-        chSel.selectedIndex = 0;
-        document.getElementById('sub-link').value    = '';
-        document.getElementById('sub-time').value    = '';
-        document.getElementById('sub-notes').value   = '';
-        document.getElementById('score-preview-val').textContent = '0 pts';
-      } else if(data && data.error === 'duplicate'){
-        showFb('ℹ Already submitted this challenge — each one counts once.', 'fb-err');
-      } else {
-        showFb('✗ ' + (data && data.error || 'Unknown error'), 'fb-err');
-      }
-    } catch(err){
-      showFb('✗ Could not reach server: ' + err.message, 'fb-err');
-    } finally {
-      btn.disabled    = false;
-      btn.textContent = '↗ Submit Solution';
-    }
-  }
-
-  /* ── Init ── */
-  fetchLeaderboard();
-  setInterval(fetchLeaderboard, 60000);
+/* ── Init ── */
+initRounds();
+tick();setInterval(tick,1000);
+fetchLB();setInterval(fetchLB,60000);
 </script>
 </body>
 </html>

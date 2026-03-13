@@ -628,37 +628,47 @@ function initRounds(){
   document.getElementById('lb-round-badge').textContent='// ROUND '+r.num+' \u00B7 '+fd(r.opens).toUpperCase()+' \u2013 '+fd(r.closes).toUpperCase();
   buildCal();buildCards();buildAnnounce(r);
 }
+/* ══════════════════════════════════════════════════════
+   LEADERBOARD — drop-in replacement for the JS section
+   Fix: all-time tab correctly shows 1R / 2R / 3R etc.
+══════════════════════════════════════════════════════ */
 
-/* ══════════════════════════
-   LEADERBOARD
-══════════════════════════ */
-const API='/.netlify/functions/leaderboard';
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+const API = '/.netlify/functions/leaderboard';
 
-/* current active tab */
-var activeTab='round';
-function switchTab(tab){
-  activeTab=tab;
-  document.getElementById('pane-round').style.display=tab==='round'?'block':'none';
-  document.getElementById('pane-alltime').style.display=tab==='alltime'?'block':'none';
-  var tr=document.getElementById('tab-round'),ta=document.getElementById('tab-alltime');
-  tr.style.color=tab==='round'?'var(--green)':'var(--muted)';
-  tr.style.borderBottom=tab==='round'?'2px solid var(--green)':'2px solid transparent';
-  ta.style.color=tab==='alltime'?'var(--green)':'var(--muted)';
-  ta.style.borderBottom=tab==='alltime'?'2px solid var(--green)':'2px solid transparent';
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-function renderTable(tbodyId, cntId, rows, cols){
-  /* cols: array of {key, label, fmt} */
-  const body=document.getElementById(tbodyId),cnt=document.getElementById(cntId);
-  if(!rows||!rows.length){body.innerHTML='<tr><td colspan="5" class="lb-empty">// no submissions yet \u2014 be the first!</td></tr>';cnt.textContent='0 participants';return;}
-  const sorted=[...rows].sort((a,b)=>b[cols[0]]-a[cols[0]]||a.name.localeCompare(b.name));
-  const mx=Math.max(...sorted.map(p=>p[cols[0]]),1);
-  body.innerHTML=sorted.map((p,i)=>{
-    const rk=i+1,rc=rk===1?'rank-1':rk===2?'rank-2':rk===3?'rank-3':'rank-other';
-    const md=rk===1?'\uD83E\uDD47':rk===2?'\uD83E\uDD48':rk===3?'\uD83E\uDD49':'';
-    const bw=Math.round((p[cols[0]]/mx)*60);
-    return`<tr>
+var activeTab = 'round';
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.getElementById('pane-round').style.display   = tab === 'round'   ? 'block' : 'none';
+  document.getElementById('pane-alltime').style.display = tab === 'alltime' ? 'block' : 'none';
+  var tr = document.getElementById('tab-round');
+  var ta = document.getElementById('tab-alltime');
+  tr.style.color        = tab === 'round'   ? 'var(--green)' : 'var(--muted)';
+  tr.style.borderBottom = tab === 'round'   ? '2px solid var(--green)' : '2px solid transparent';
+  ta.style.color        = tab === 'alltime' ? 'var(--green)' : 'var(--muted)';
+  ta.style.borderBottom = tab === 'alltime' ? '2px solid var(--green)' : '2px solid transparent';
+}
+
+function renderTable(tbodyId, cntId, rows, cols) {
+  const body = document.getElementById(tbodyId);
+  const cnt  = document.getElementById(cntId);
+  if (!rows || !rows.length) {
+    body.innerHTML = '<tr><td colspan="5" class="lb-empty">// no submissions yet \u2014 be the first!</td></tr>';
+    cnt.textContent = '0 participants';
+    return;
+  }
+  const sorted = [...rows].sort((a, b) => b[cols[0]] - a[cols[0]] || a.name.localeCompare(b.name));
+  const mx = Math.max(...sorted.map(p => p[cols[0]]), 1);
+  body.innerHTML = sorted.map((p, i) => {
+    const rk = i + 1;
+    const rc = rk === 1 ? 'rank-1' : rk === 2 ? 'rank-2' : rk === 3 ? 'rank-3' : 'rank-other';
+    const md = rk === 1 ? '\uD83E\uDD47' : rk === 2 ? '\uD83E\uDD48' : rk === 3 ? '\uD83E\uDD49' : '';
+    const bw = Math.round((p[cols[0]] / mx) * 60);
+    return `<tr>
       <td class="lb-rank ${rc}">${String(rk).padStart(2,'0')}</td>
       <td class="lb-name">${esc(p.name)}</td>
       <td class="lb-score">${p[cols[0]]}<span class="lb-bar-wrap"><span class="lb-bar" style="width:${bw}px"></span></span></td>
@@ -666,62 +676,128 @@ function renderTable(tbodyId, cntId, rows, cols){
       <td class="lb-badge-cell">${md}</td>
     </tr>`;
   }).join('');
-  cnt.textContent=sorted.length+' participant'+(sorted.length!==1?'s':'');
+  cnt.textContent = sorted.length + ' participant' + (sorted.length !== 1 ? 's' : '');
 }
 
-function buildAllTime(participants){
-  /* merge all rounds per student number */
-  const map={};
-  participants.forEach(p=>{
-    const sn=p.studentNum;
-    if(!map[sn]){map[sn]={name:p.name,total:p.score,rounds:new Set([p.round])};}
-    else{map[sn].total+=p.score;map[sn].rounds.add(p.round);}
+/* ── Build all-time aggregation from all round entries ──
+   participants array has one entry per student PER ROUND.
+   We group by studentNum, sum scores, count unique rounds. */
+function buildAllTime(participants) {
+  const map = {};
+  participants.forEach(p => {
+    const sn = p.studentNum;
+    if (!map[sn]) {
+      map[sn] = {
+        name   : p.name,
+        total  : p.score,
+        rounds : new Set([String(p.round)])
+      };
+    } else {
+      map[sn].total += p.score;
+      map[sn].rounds.add(String(p.round));
+    }
   });
-  return Object.values(map).map(p=>({name:p.name,total:p.total,rounds:p.rounds.size+'R'}));
+  return Object.values(map).map(p => ({
+    name   : p.name,
+    total  : p.total,
+    rounds : p.rounds.size + 'R'
+  }));
 }
 
-function renderLB(ps){
-  const currentRound=String(getActive().r.num);
-  const roundPs=ps.filter(p=>String(p.round)===currentRound);
-  renderTable('lb-body-round','lb-count-round',roundPs.map(p=>({name:p.name,score:p.score,done:p.challenges+'/5'})),['score','done']);
-  const allTime=buildAllTime(ps);
-  renderTable('lb-body-alltime','lb-count-alltime',allTime.map(p=>({name:p.name,score:p.total,done:p.rounds})),['score','done']);
+/* ── Render both tabs ── */
+function renderLB(ps) {
+  // THIS ROUND tab — filter by current active round number
+  const currentRound = String(getActive().r.num);
+  const roundPs = ps.filter(p => String(p.round) === currentRound);
+  renderTable(
+    'lb-body-round', 'lb-count-round',
+    roundPs.map(p => ({ name: p.name, score: p.score, done: p.challenges + '/5' })),
+    ['score', 'done']
+  );
+
+  // ALL-TIME tab — aggregate across all rounds
+  const allTime = buildAllTime(ps);
+  renderTable(
+    'lb-body-alltime', 'lb-count-alltime',
+    allTime.map(p => ({ name: p.name, score: p.total, done: p.rounds })),
+    ['score', 'done']
+  );
 }
 
-async function fetchLB(){
-  ['lb-body-round','lb-body-alltime'].forEach(id=>{document.getElementById(id).innerHTML='<tr><td colspan="5" class="lb-empty">// loading...</td></tr>';});
-  try{const r=await fetch(API+'?t='+Date.now()),d=await r.json();if(d&&d.success)renderLB(d.participants);}
-  catch(e){document.getElementById('lb-body-round').innerHTML=`<tr><td colspan="5" class="lb-empty" style="color:#ff8080">// error: ${esc(e.message)}</td></tr>`;}
+async function fetchLB() {
+  ['lb-body-round', 'lb-body-alltime'].forEach(id => {
+    document.getElementById(id).innerHTML =
+      '<tr><td colspan="5" class="lb-empty">// loading...</td></tr>';
+  });
+  try {
+    const r = await fetch(API + '?t=' + Date.now());
+    const d = await r.json();
+    if (d && d.success) renderLB(d.participants);
+  } catch(e) {
+    document.getElementById('lb-body-round').innerHTML =
+      `<tr><td colspan="5" class="lb-empty" style="color:#ff8080">// error: ${esc(e.message)}</td></tr>`;
+  }
 }
 
-function showFb(msg,cls){const fb=document.getElementById('sub-feedback');fb.style.display='block';fb.className=cls;fb.textContent=msg;setTimeout(()=>fb.style.display='none',7000);}
+function showFb(msg, cls) {
+  const fb = document.getElementById('sub-feedback');
+  fb.style.display = 'block';
+  fb.className     = cls;
+  fb.textContent   = msg;
+  setTimeout(() => fb.style.display = 'none', 7000);
+}
 
-async function submitSolution(){
-  const name=document.getElementById('sub-name').value.trim();
-  const student=document.getElementById('sub-student').value.trim();
-  const sel=document.getElementById('sub-challenge');
-  const pts=parseInt(sel.value||0);
-  const link=document.getElementById('sub-link').value.trim();
-  const btn=document.querySelector('.sub-btn');
-  if(!name)return showFb('\u2717 Please enter your name.','fb-err');
-  if(!student)return showFb('\u2717 Please enter your student number.','fb-err');
-  if(!pts)return showFb('\u2717 Please select a challenge.','fb-err');
-  if(!link||!link.startsWith('http'))return showFb('\u2717 Please paste a valid HackerRank URL.','fb-err');
-  btn.disabled=true;btn.textContent='\u23F3 Submitting...';
-  try{
-    const payload={studentNum:student,name,challengeIdx:sel.selectedIndex-1,pts,link,round:String(getActive().r.num)};
-    const res=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
-    const data=await res.json();
-    if(data&&data.success){
+async function submitSolution() {
+  const name    = document.getElementById('sub-name').value.trim();
+  const student = document.getElementById('sub-student').value.trim();
+  const sel     = document.getElementById('sub-challenge');
+  const pts     = parseInt(sel.value || 0);
+  const link    = document.getElementById('sub-link').value.trim();
+  const btn     = document.querySelector('.sub-btn');
+
+  if (!name)                          return showFb('\u2717 Please enter your name.',              'fb-err');
+  if (!student)                       return showFb('\u2717 Please enter your student number.',    'fb-err');
+  if (!pts)                           return showFb('\u2717 Please select a challenge.',           'fb-err');
+  if (!link || !link.startsWith('http')) return showFb('\u2717 Please paste a valid HackerRank URL.', 'fb-err');
+
+  btn.disabled    = true;
+  btn.textContent = '\u23F3 Submitting...';
+
+  try {
+    const payload = {
+      studentNum   : student,
+      name,
+      challengeIdx : sel.selectedIndex - 1,
+      pts,
+      link,
+      round        : String(getActive().r.num)
+    };
+    const res  = await fetch(API, {
+      method  : 'POST',
+      headers : { 'Content-Type': 'text/plain' },
+      body    : JSON.stringify(payload)
+    });
+    const data = await res.json();
+
+    if (data && data.success) {
       renderLB(data.participants);
-      showFb('\u2713 +'+pts+' pts submitted! Leaderboard updated.','fb-ok');
-      ['sub-name','sub-student','sub-link','sub-time','sub-notes'].forEach(id=>document.getElementById(id).value='');
-      sel.selectedIndex=0;document.getElementById('score-preview-val').textContent='0 pts';
-    }else if(data&&data.error==='duplicate'){
-      showFb('\u2139 Already submitted this challenge \u2014 each one counts once.','fb-err');
-    }else{showFb('\u2717 '+(data&&data.error||'Unknown error'),'fb-err');}
-  }catch(e){showFb('\u2717 Could not reach server: '+e.message,'fb-err');}
-  finally{btn.disabled=false;btn.textContent='\u2197 Submit Solution';}
+      showFb('\u2713 +' + pts + ' pts submitted! Leaderboard updated.', 'fb-ok');
+      ['sub-name','sub-student','sub-link','sub-time','sub-notes'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      sel.selectedIndex = 0;
+      document.getElementById('score-preview-val').textContent = '0 pts';
+    } else if (data && data.error === 'duplicate') {
+      showFb('\u2139 Already submitted this challenge \u2014 each one counts once.', 'fb-err');
+    } else {
+      showFb('\u2717 ' + (data && data.error || 'Unknown error'), 'fb-err');
+    }
+  } catch(e) {
+    showFb('\u2717 Could not reach server: ' + e.message, 'fb-err');
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = '\u2197 Submit Solution';
+  }
 }
 
 /* ── Init ── */

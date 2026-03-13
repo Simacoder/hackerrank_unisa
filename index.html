@@ -629,8 +629,7 @@ function initRounds(){
   buildCal();buildCards();buildAnnounce(r);
 }
 /* ══════════════════════════════════════════════════════
-   LEADERBOARD — drop-in replacement for the JS section
-   Fix: all-time tab correctly shows 1R / 2R / 3R etc.
+   LEADERBOARD
 ══════════════════════════════════════════════════════ */
 
 const API = '/.netlify/functions/leaderboard';
@@ -679,9 +678,9 @@ function renderTable(tbodyId, cntId, rows, cols) {
   cnt.textContent = sorted.length + ' participant' + (sorted.length !== 1 ? 's' : '');
 }
 
-/* ── Build all-time aggregation from all round entries ──
-   participants array has one entry per student PER ROUND.
-   We group by studentNum, sum scores, count unique rounds. */
+/* ── Build all-time aggregation ──
+   Shows each round the student participated in, e.g. "1R 2R" or "1R 2R 3R"
+   sorted numerically so they always appear in order. */
 function buildAllTime(participants) {
   const map = {};
   participants.forEach(p => {
@@ -697,16 +696,22 @@ function buildAllTime(participants) {
       map[sn].rounds.add(String(p.round));
     }
   });
-  return Object.values(map).map(p => ({
-    name   : p.name,
-    total  : p.total,
-    rounds : p.rounds.size + 'R'
-  }));
+  return Object.values(map).map(p => {
+    // Sort round numbers and display as "1R 2R 3R"
+    const roundLabels = [...p.rounds]
+      .map(r => Number(r))
+      .sort((a, b) => a - b)
+      .map(r => r + 'R')
+      .join(' ');
+    return {
+      name   : p.name,
+      total  : p.total,
+      rounds : roundLabels
+    };
+  });
 }
 
-/* ── Render both tabs ── */
 function renderLB(ps) {
-  // THIS ROUND tab — filter by current active round number
   const currentRound = String(getActive().r.num);
   const roundPs = ps.filter(p => String(p.round) === currentRound);
   renderTable(
@@ -715,7 +720,6 @@ function renderLB(ps) {
     ['score', 'done']
   );
 
-  // ALL-TIME tab — aggregate across all rounds
   const allTime = buildAllTime(ps);
   renderTable(
     'lb-body-alltime', 'lb-count-alltime',
@@ -755,9 +759,9 @@ async function submitSolution() {
   const link    = document.getElementById('sub-link').value.trim();
   const btn     = document.querySelector('.sub-btn');
 
-  if (!name)                          return showFb('\u2717 Please enter your name.',              'fb-err');
-  if (!student)                       return showFb('\u2717 Please enter your student number.',    'fb-err');
-  if (!pts)                           return showFb('\u2717 Please select a challenge.',           'fb-err');
+  if (!name)                             return showFb('\u2717 Please enter your name.',              'fb-err');
+  if (!student)                          return showFb('\u2717 Please enter your student number.',    'fb-err');
+  if (!pts)                              return showFb('\u2717 Please select a challenge.',           'fb-err');
   if (!link || !link.startsWith('http')) return showFb('\u2717 Please paste a valid HackerRank URL.', 'fb-err');
 
   btn.disabled    = true;
